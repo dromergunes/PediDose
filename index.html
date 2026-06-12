@@ -1,0 +1,1646 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PediDose 1.0 — Pediatrik Doz Hesaplayıcı</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f0f4f8;--surface:#fff;--sf2:#f7fafc;
+  --pri:#1a6b4a;--pril:#2d9e70;--prip:#e6f4ed;
+  --acc:#e8562a;--accp:#fdf0ec;
+  --wrn:#d97706;--wrnp:#fffbeb;
+  --inf:#2563eb;--infp:#eff6ff;
+  --t1:#1a202c;--t2:#4a5568;--t3:#718096;
+  --bd:#e2e8f0;--bd2:#cbd5e0;
+  --r:12px;--rs:8px;
+  --sh:0 1px 3px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.06);
+  --shl:0 8px 32px rgba(0,0,0,.14);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;font-size:15px}
+
+/* TOPBAR */
+.topbar{background:#fff;border-bottom:1px solid var(--bd);padding:0 24px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.tb-brand{display:flex;align-items:center;gap:10px}
+.lb{width:36px;height:36px;background:linear-gradient(135deg,var(--pri),var(--pril));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 2px 8px rgba(26,107,74,.25)}
+.bname{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--pri);letter-spacing:-.3px}
+.bname small{font-size:11px;color:var(--t3);font-weight:400}
+.vtag{font-size:11px;background:var(--prip);color:var(--pri);padding:3px 8px;border-radius:8px;font-weight:600}
+
+/* LAYOUT */
+.layout{max-width:1180px;margin:0 auto;padding:22px 18px;display:grid;grid-template-columns:350px 1fr;gap:18px;align-items:start}
+
+/* CARD */
+.card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+.ch{padding:13px 17px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:8px}
+.ch h2{font-family:'Syne',sans-serif;font-size:13.5px;font-weight:700;color:var(--t1)}
+.hi{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px}
+.cb{padding:15px 17px}
+
+/* FORM */
+.fld{margin-bottom:11px}
+.fld label{display:block;font-size:10.5px;font-weight:600;color:var(--t3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+.fld select,.fld input{width:100%;padding:9px 11px;border:1.5px solid var(--bd);border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--t1);background:#fff;outline:none;transition:border-color .2s,box-shadow .2s}
+.fld select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23718096' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center;padding-right:30px}
+.fld select:focus,.fld input:focus{border-color:var(--pri);box-shadow:0 0 0 3px rgba(26,107,74,.1)}
+.wrow{display:flex;gap:8px;align-items:flex-end}
+.wrow .fld{flex:1;margin:0}
+.wcat{padding:9px 11px;background:var(--prip);border-radius:var(--rs);font-size:12px;color:var(--pri);font-weight:600;white-space:nowrap}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{padding:5px 10px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1.5px solid var(--bd);background:#fff;color:var(--t2);transition:all .15s;user-select:none}
+.chip:hover{border-color:var(--pri);color:var(--pri)}
+.chip.active{background:var(--pri);border-color:var(--pri);color:#fff}
+.chip.lh{color:var(--wrn);border-color:var(--wrnp);background:var(--wrnp)}
+.chip.lh.active{background:var(--wrn);color:#fff;border-color:var(--wrn)}
+.thint{font-size:11.5px;color:var(--t3);margin-top:5px;display:none}
+.thint span{color:var(--pri);font-weight:600}
+.div{height:1px;background:var(--bd);margin:13px 0}
+.arow{display:flex;gap:8px}
+.bcalc{flex:1;padding:11px;background:linear-gradient(135deg,var(--pri),var(--pril));color:#fff;border:none;border-radius:var(--rs);font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:opacity .2s;display:flex;align-items:center;justify-content:center;gap:5px}
+.bcalc:hover{opacity:.9}
+.bclr{padding:11px 14px;background:transparent;color:var(--t3);border:1.5px solid var(--bd);border-radius:var(--rs);font-size:13px;cursor:pointer;transition:all .2s}
+.bclr:hover{background:var(--accp);color:var(--acc);border-color:var(--acc)}
+
+/* RESULTS */
+#rp{display:none}
+#rp.vis{display:block;animation:fs .3s ease}
+@keyframes fs{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+.hero{background:linear-gradient(135deg,#1a6b4a,#1e8a5a);border-radius:var(--r);padding:18px 20px;color:#fff;margin-bottom:13px;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;right:-15px;top:-15px;width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,.06)}
+.hero-top{}
+.hero-brand{font-size:13px;opacity:.85;margin-bottom:4px;margin-top:-2px}
+.hero-meta2{font-size:13px;opacity:.78;margin-bottom:8px;font-weight:400}
+.hero-sub{font-size:14px;opacity:.9;margin-top:8px;font-weight:600;letter-spacing:.3px}
+.hl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;opacity:.7;margin-bottom:3px}
+.hd{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;letter-spacing:-.3px;margin-bottom:6px}
+.hero-meta{font-size:12.5px;opacity:.9;line-height:1.7;margin-bottom:4px}
+.hb{display:inline-block;background:rgba(255,255,255,.18);border-radius:7px;padding:8px 15px;margin-top:8px;font-family:'DM Sans',sans-serif;font-size:13.5px;font-weight:600;letter-spacing:.1px;line-height:1.4}
+
+/* Toggle */
+.dtog{background:var(--sf2);border-radius:8px;padding:3px;display:inline-flex;border:1px solid var(--bd);margin-bottom:11px}
+.dtb{padding:5px 12px;border-radius:6px;font-size:11.5px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--t3);transition:all .15s}
+.dtb.active{background:#fff;color:var(--pri);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+
+/* Dose cards */
+.dgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:13px}
+.dc{border-radius:10px;padding:12px 11px 10px;border:1.5px solid var(--bd);background:#fff;cursor:pointer;position:relative;overflow:hidden;transition:all .15s}
+.dc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px}
+.dc-r::before{background:var(--pri)}.dc-n::before{background:#94a3b8}.dc-x::before{background:var(--acc)}
+.dc.dca{box-shadow:0 0 0 2px var(--pri)}
+.dclbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
+.dc-r .dclbl{color:var(--pri)}.dc-n .dclbl{color:var(--t3)}.dc-x .dclbl{color:var(--acc)}
+.dcv{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--t1)}
+.dcu{font-size:10px;color:var(--t3)}
+.dcs{font-size:11px;color:var(--t3);margin-top:2px}
+.dcbg{display:inline-block;font-size:9px;padding:2px 6px;border-radius:8px;font-weight:700;margin-top:4px}
+.dc-r .dcbg{background:var(--prip);color:var(--pri)}
+
+/* Info */
+.igrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:11px}
+.ii{background:var(--sf2);border-radius:var(--rs);padding:10px 12px;border:1px solid var(--bd)}
+.iil{font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.iiv{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--t1)}
+.iis{font-size:11px;color:var(--t3);margin-top:2px}
+
+/* Round box */
+.rb{background:#f0fdf4;border:1.5px solid #86efac;border-radius:var(--rs);padding:12px 14px;margin-bottom:11px;display:none}
+.rb p{font-size:12.5px;color:#166534;margin-bottom:3px;font-weight:500}
+.rbrule{font-size:10.5px;color:#166534;opacity:.8;margin-bottom:9px}
+.rbbts{display:flex;gap:7px}
+.brd{padding:5px 13px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all .15s}
+.brd.y{background:var(--pri);color:#fff}.brd.n{background:#fff;color:var(--t2);border:1.5px solid var(--bd2)}
+
+/* Notes */
+.anote{background:#fef3c7;border:1px solid #fde68a;border-radius:var(--rs);padding:9px 12px;font-size:12px;color:#92400e;margin-bottom:11px;line-height:1.5;display:none}
+.dbox{background:var(--infp);border:1px solid #bfdbfe;border-radius:var(--rs);padding:10px 12px;margin-bottom:9px;font-size:12.5px;color:#1e40af;line-height:1.6;display:none}
+.wbox{background:var(--wrnp);border:1px solid #fde68a;border-radius:var(--rs);padding:10px 12px;margin-bottom:9px;font-size:12.5px;color:#92400e;display:none;gap:7px;align-items:flex-start;line-height:1.5}
+.wbox.show{display:flex}
+
+/* ═══ MÜSTAHZAR LİSTESİ — YENİ TASARIM ═══ */
+.prep-section{margin-top:12px}
+.prep-sec-title{font-size:10.5px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;padding:0 2px}
+
+/* Konc grubu başlık */
+.conc-group{margin-bottom:14px}
+.conc-header{display:flex;align-items:center;gap:8px;margin-bottom:6px;padding:6px 10px;background:var(--sf2);border-radius:var(--rs);border:1px solid var(--bd)}
+.conc-badge{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--pri)}
+.conc-opt-tag{font-size:9px;font-weight:700;background:var(--pri);color:#fff;padding:2px 6px;border-radius:6px;letter-spacing:.4px}
+
+/* Her müstahzar kendi satırı */
+.prep-item{display:flex;align-items:center;justify-content:space-between;padding:9px 11px;border-radius:var(--rs);margin-bottom:5px;background:#fff;border:1.5px solid var(--bd);cursor:pointer;transition:all .15s;gap:8px}
+.prep-item:hover{border-color:var(--pri);background:var(--prip)}
+.prep-item.sel{border-color:var(--pri);background:var(--prip);box-shadow:0 0 0 1px var(--pri)}
+.pi-left{flex:1;min-width:0}
+.pi-brand{font-weight:600;font-size:13px;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pi-detail{font-size:11px;color:var(--t3);margin-top:2px}
+.pi-right{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.pi-vol{font-size:11px;font-weight:700;background:var(--sf2);color:var(--t2);padding:3px 7px;border-radius:6px;border:1px solid var(--bd);white-space:nowrap}
+.pi-sel{color:var(--pri);font-size:16px;font-weight:700}
+
+/* ═══ REÇETE MODAL ═══ */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex;animation:mfade .2s ease}
+@keyframes mfade{from{opacity:0}to{opacity:1}}
+.modal{background:#fff;border-radius:16px;width:100%;max-width:540px;box-shadow:var(--shl);overflow:hidden;animation:mslide .25s ease}
+@keyframes mslide{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-head{background:linear-gradient(135deg,var(--pri),var(--pril));color:#fff;padding:18px 22px 16px;position:relative}
+.modal-head h3{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;margin-bottom:3px}
+.modal-head p{font-size:12.5px;opacity:.85}
+.modal-close{position:absolute;right:16px;top:16px;background:rgba(255,255,255,.2);border:none;color:#fff;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.modal-close:hover{background:rgba(255,255,255,.35)}
+.modal-body{padding:20px 22px}
+
+/* Reçete formatı */
+.rx{font-family:'DM Sans',sans-serif}
+.rx-header{text-align:center;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid var(--bd)}
+.rx-header .rx-title{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--t3);margin-bottom:4px}
+.rx-header .rx-date{font-size:12px;color:var(--t3)}
+.rx-drug{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:var(--pri);margin-bottom:2px}
+.rx-brand{font-size:14px;font-weight:600;color:var(--t1);margin-bottom:12px}
+.rx-section{display:table;width:100%;border-collapse:collapse;margin-bottom:10px}
+.rx-row{display:table-row}
+.rx-row:last-child .rx-label,.rx-row:last-child .rx-value{border-bottom:none}
+.rx-label{display:table-cell;font-size:12px;font-weight:600;color:var(--t3);width:130px;white-space:nowrap;padding:5px 12px 5px 0;border-bottom:1px dashed var(--bd);vertical-align:middle}
+.rx-value{display:table-cell;font-size:13px;font-weight:500;color:var(--t1);font-family:'DM Sans',sans-serif;white-space:nowrap;padding:5px 0;border-bottom:1px dashed var(--bd);vertical-align:middle}
+.rx-value.hi{color:var(--t1)}
+.rx-warn{background:var(--wrnp);border:1px solid #fde68a;border-radius:var(--rs);padding:9px 12px;font-size:12px;color:#92400e;margin-top:12px;line-height:1.5}
+.rx-azitro{background:var(--infp);border:1px solid #bfdbfe;border-radius:var(--rs);padding:10px 12px;font-size:12px;color:#1e40af;margin-top:4px;line-height:1.6}
+.rx-azitro table{width:100%;border-collapse:collapse;margin-top:6px}
+.rx-azitro td{padding:3px 8px;font-size:12.5px}
+.rx-azitro td:first-child{font-weight:600;color:#1e40af;width:80px}
+.rx-azitro td:last-child{font-weight:700;font-family:'Syne',sans-serif}
+
+.modal-footer{padding:14px 22px;background:var(--sf2);border-top:1px solid var(--bd);display:flex;gap:8px;justify-content:flex-end}
+.btn-copy{padding:9px 18px;border-radius:20px;font-size:12.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .2s}
+.btn-copy.pri{background:var(--pri);color:#fff;border:none}
+.btn-copy.pri:hover{opacity:.9}
+.btn-copy.sec{background:#fff;color:var(--t2);border:1.5px solid var(--bd2)}
+.btn-copy.sec:hover{border-color:var(--pri);color:var(--pri);background:var(--prip)}
+
+/* Result actions */
+.ract{display:flex;gap:8px;flex-wrap:wrap;margin-top:11px}
+.bact{padding:7px 13px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid var(--bd);background:#fff;color:var(--t2);display:flex;align-items:center;gap:4px;transition:all .2s}
+.bact:hover{border-color:var(--pri);color:var(--pri);background:var(--prip)}
+.bact.pri{background:var(--pri);color:#fff;border-color:var(--pri)}.bact.pri:hover{opacity:.9}
+
+/* Empty state */
+.empty{text-align:center;padding:52px 24px}
+.es-title{font-family:'Syne',sans-serif;font-size:42px;font-weight:800;letter-spacing:-1.5px;line-height:1;margin-bottom:14px}
+.es-pedi{color:var(--pri)}
+.es-dose{color:var(--pril)}
+.es-ver{font-size:18px;font-weight:600;color:var(--t3);letter-spacing:0;vertical-align:middle;margin-left:2px}
+.es-sub{font-size:13.5px;color:var(--t3);line-height:1.7}
+.empty p{font-size:13px;color:var(--t3);line-height:1.6}
+.chip.hafta{color:#7c3aed;border-color:#ede9fe;background:#f5f3ff}
+.chip.hafta.active{background:#7c3aed;color:white;border-color:#7c3aed}
+
+/* Toast */
+.toast{position:fixed;bottom:18px;right:18px;background:#1a202c;color:#fff;padding:10px 17px;border-radius:10px;font-size:13px;font-weight:500;box-shadow:var(--shl);transform:translateY(70px);opacity:0;transition:all .3s;z-index:999}
+.toast.show{transform:translateY(0);opacity:1}
+
+@media(max-width:768px){
+  .layout{grid-template-columns:1fr;padding:12px}
+  .dgrid{grid-template-columns:1fr}
+  .igrid{grid-template-columns:1fr}
+  .modal{max-width:100%}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="tb-brand">
+    <div class="lb">💊</div>
+    <span class="bname">PediDose<small> 1.0</small></span>
+  </div>
+  <span class="vtag">Pediatrik Doz Hesaplayıcı</span>
+</div>
+
+<div class="layout">
+  <!-- SOL -->
+  <div>
+    <div class="card">
+      <div class="ch"><div class="hi" style="background:#e6f4ed">🔬</div><h2>Doz Hesaplama</h2></div>
+      <div class="cb">
+        <div class="fld">
+          <label>İlaç / Doz Rejimi</label>
+          <select id="dsel" onchange="onDrug()"><option value="">— Seçiniz —</option></select>
+        </div>
+        <div class="fld">
+          <label>Vücut Ağırlığı</label>
+          <div class="wrow">
+            <div class="fld" style="margin:0"><input type="number" id="wt" placeholder="kg" min="0.5" max="150" step="0.1" oninput="onWt()"></div>
+            <div class="wcat" id="wtcat">— kg</div>
+          </div>
+        </div>
+        <div class="fld">
+          <label>Tedavi Süresi</label>
+          <div class="chips" id="durChips">
+            <div class="chip" onclick="selDur(5)">5 gün</div>
+            <div class="chip" onclick="selDur(7)">7 gün</div>
+            <div class="chip" onclick="selDur(10)">10 gün</div>
+            <div class="chip" onclick="selDur(14)">14 gün</div>
+            <div class="chip" onclick="selDur(30)">30 gün</div>
+            <div class="chip hafta" onclick="selDur('2hafta')">2 haftada 1</div>
+            <div class="chip lh" onclick="selDur('LH')">LH</div>
+          </div>
+          <div class="thint" id="thint">ℹ️ Önerilen: <span id="hdur">—</span></div>
+        </div>
+        <div class="div"></div>
+        <div class="arow">
+          <button class="bcalc" onclick="calc()">⚡ DOZU HESAPLA</button>
+          <button class="bclr" onclick="clrAll()">✕</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SAĞ -->
+  <div>
+    <div id="emptyState" class="empty card">
+
+      <div class="es-title">
+        <span class="es-pedi">Pedi</span><span class="es-dose">Dose</span><span class="es-ver"> 1.0</span>
+      </div>
+      <p class="es-sub">Sol panelden ilaç / doz rejimini seçin,<br>vücut ağırlığını girin ve hesaplayın.</p>
+    </div>
+
+    <div id="rp">
+      <div class="hero">
+        <div class="hero-top">
+          <div class="hl" id="heroLbl">ÖNERİLEN DOZ</div>
+          <div class="hd" id="heroDrug">—</div>
+          <div class="hero-meta2" id="heroMeta2" style="display:none"></div>
+          <div class="hb" id="heroBox" style="display:none"></div>
+          <div class="hero-sub" id="heroSub" style="display:none"></div>
+        </div>
+      </div>
+
+      <div id="togWrap" style="display:none;margin-bottom:12px">
+        <div style="font-size:11px;color:var(--t3);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Doz Seçimi</div>
+        <div class="dtog">
+          <button class="dtb active" id="dtb-rec" onclick="swV('rec')">📌 Önerilen/Varsayılan</button>
+          <button class="dtb" id="dtb-min" onclick="swV('min')">▼ Min</button>
+          <button class="dtb" id="dtb-max" onclick="swV('max')">▲ Max</button>
+        </div>
+      </div>
+
+      <div class="dgrid" id="dgrid"></div>
+
+      <div class="rb" id="rb">
+        <p>💡 Hesaplanan ölçek: <strong id="rawOl">—</strong> ölçek. Yuvarlamak ister misiniz?</p>
+        <div class="rbrule">Kural: 0.00–0.24 → 0 &nbsp;|&nbsp; 0.25–0.74 → 0.5 &nbsp;|&nbsp; 0.75–0.99 → 1 &nbsp;(0.25 sınırında uyarı)</div>
+        <div class="rbbts">
+          <button class="brd y" onclick="applyRnd(true)">✓ Evet</button>
+          <button class="brd n" onclick="applyRnd(false)">✗ Hayır</button>
+        </div>
+      </div>
+
+      <div class="anote" id="anote">
+        ⚠️ <strong>Azitromisin 5 günlük rejim:</strong> 1. gün 10 mg/kg/doz, 2.–5. günler 5 mg/kg/doz. Toplam hacim ve kutu sayısı buna göre hesaplanmıştır.
+      </div>
+
+      <div class="igrid" id="igrid"></div>
+      <div class="dbox" id="dbox"></div>
+      <div class="wbox" id="wbox"><span>⚠️</span><span id="wtxt"></span></div>
+
+      <!-- MÜSTAHZARLAR -->
+      <div class="card" style="margin-top:12px">
+        <div class="ch">
+          <div class="hi" style="background:#eff6ff">💼</div>
+          <h2>Müstahzarlar</h2>
+          <span style="margin-left:auto;font-size:11px;color:var(--t3)">Tıklayın → Reçete</span>
+        </div>
+        <div class="cb" style="padding:12px 14px">
+          <div class="prep-section" id="prepSection"></div>
+        </div>
+      </div>
+
+      <div class="ract">
+        <button class="bact pri" onclick="showRxModal()">📋 Reçete Görüntüle</button>
+        <button class="bact" onclick="copyRx()">📄 Kopyala</button>
+        <button class="bact" onclick="addFav()">⭐ Favorilere Ekle</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- REÇETE MODAL -->
+<div class="modal-overlay" id="rxModal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="mHead">—</h3>
+      <p id="mSub">—</p>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="mBody"></div>
+    <div class="modal-footer">
+      <button class="btn-copy sec" onclick="closeModal()">Kapat</button>
+      <button class="btn-copy pri" onclick="copyModalRx()">📋 Kopyala</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════════════════
+// VERİTABANI — Excel'den bire bir alınan tüm müstahzarlar
+// Her prep: {brand: tam ticari isim (Excel col 16), sMg, sMl, vol}
+// ════════════════════════════════════════════════════════
+const DB = [
+
+// ── ALBENDAZOL ───────────────────────────────────────────
+{key:"alb02",noWeight:true,label:"Albendazol (Enterobiyazis) — 0–2 yaş",sinif:"antihelmintik",yol:"PO",
+ doseMin:null,doseMax:null,doseRec:null,fixedMg:200,maxDozMg:400,
+ freq:null,freqPer:"2 haftada bir",totalDoz:2,olcek:10,suspMl:10,
+ isDefHafta:true,defDur:null,durLabel:"2 haftada bir × 2 doz",bRule:"min_kutu",
+ preps:[
+  {brand:"ANDAZOL Süspansiyon 200 mg/10 ml 60 ml şişe",sMg:200,sMl:10,vol:60}],
+ aciklama:"Albendazol tek dozla etkilidir; reenfeksiyonu önlemek için 2 hafta sonra tekrarlanmalıdır.",
+ warning:">2 yaş üzeri kullanım uyarısı mevcuttur. Tüm ev halkı eş zamanlı tedavi edilmeli."},
+
+{key:"alb212",noWeight:true,label:"Albendazol (Enterobiyazis) — 2–12 yaş",sinif:"antihelmintik",yol:"PO",
+ doseMin:null,doseMax:null,doseRec:null,fixedMg:400,maxDozMg:400,
+ freq:null,freqPer:"2 haftada bir",totalDoz:2,olcek:10,suspMl:10,
+ isDefHafta:true,defDur:null,durLabel:"2 haftada bir × 2 doz",bRule:"min_kutu",
+ preps:[
+  {brand:"ANDAZOL Süspansiyon 200 mg/10 ml 60 ml şişe",sMg:200,sMl:10,vol:60}],
+ aciklama:"Albendazol tek dozla etkilidir; reenfeksiyonu önlemek için 2 hafta sonra tekrarlanmalıdır.",
+ warning:"Tüm ev halkı eş zamanlı tedavi edilmeli."},
+
+{key:"alb1218",noWeight:true,label:"Albendazol (Enterobiyazis) — 12–18 yaş",sinif:"antihelmintik",yol:"PO",
+ doseMin:null,doseMax:null,doseRec:null,fixedMg:400,maxDozMg:400,
+ freq:null,freqPer:"2 haftada bir",totalDoz:2,olcek:10,suspMl:10,
+ isDefHafta:true,defDur:null,durLabel:"2 haftada bir × 2 doz",bRule:"min_kutu",
+ preps:[
+  {brand:"ANDAZOL Süspansiyon 200 mg/10 ml 60 ml şişe",sMg:200,sMl:10,vol:60}],
+ aciklama:"Albendazol tek dozla etkilidir; reenfeksiyonu önlemek için 2 hafta sonra tekrarlanmalıdır.",
+ warning:"Tüm ev halkı eş zamanlı tedavi edilmeli."},
+
+// ── AMOKSİSİLİN ──────────────────────────────────────────
+{key:"amoks_std",label:"Amoksisilin standart doz (GAS tonsilliti)",sinif:"antibakteriyel",yol:"PO",
+ doseMin:25,doseMax:25,doseRec:25,fixedMg:null,maxDozMg:500,
+ freq:2,freqPer:"günlük",totalDoz:null,olcek:5,suspMl:5,
+ defDur:10,durLabel:"10 gün",bRule:"konc_opt",
+ preps:[
+  {brand:"LARGOPEN Süspansiyon Hazırlamak İçin Kuru Toz 125 mg/5 ml 80 ml şişe",sMg:125,sMl:5,vol:80},
+  {brand:"LARGOPEN Oral Süspansiyon Hazırlamak İçin Kuru Toz 200 mg/5 ml 100 ml şişe",sMg:200,sMl:5,vol:100},
+  {brand:"LARGOPEN Süspansiyon Hazırlamak İçin Kuru Toz 250 mg/5 ml 80 ml şişe",sMg:250,sMl:5,vol:80},
+  {brand:"ATOKSİLİN Oral Süspansiyon İçin Kuru Toz 250 mg/5 ml 80 ml şişe",sMg:250,sMl:5,vol:80},
+  {brand:"LARGOPEN FORT Oral Süspansiyon Hazırlamak İçin Kuru Toz 400 mg/5 ml 100 ml şişe",sMg:400,sMl:5,vol:100}],
+ aciklama:"GAS tonsillofarenjiti için 10 gün tamamlanmalıdır.",warning:null},
+
+{key:"amoks_yuk",label:"Amoksisilin yüksek doz (AOM — pnömoni)",sinif:"antibakteriyel",yol:"PO",
+ doseMin:40,doseMax:45,doseRec:40,fixedMg:null,maxDozMg:2000,
+ freq:2,freqPer:"günlük",totalDoz:null,olcek:5,suspMl:5,
+ defDur:10,durLabel:"5–7 gün",bRule:"konc_opt",
+ preps:[
+  {brand:"LARGOPEN Süspansiyon Hazırlamak İçin Kuru Toz 125 mg/5 ml 80 ml şişe",sMg:125,sMl:5,vol:80},
+  {brand:"LARGOPEN Oral Süspansiyon Hazırlamak İçin Kuru Toz 200 mg/5 ml 100 ml şişe",sMg:200,sMl:5,vol:100},
+  {brand:"LARGOPEN Süspansiyon Hazırlamak İçin Kuru Toz 250 mg/5 ml 80 ml şişe",sMg:250,sMl:5,vol:80},
+  {brand:"ATOKSİLİN Oral Süspansiyon İçin Kuru Toz 250 mg/5 ml 80 ml şişe",sMg:250,sMl:5,vol:80},
+  {brand:"LARGOPEN FORT Oral Süspansiyon Hazırlamak İçin Kuru Toz 400 mg/5 ml 100 ml şişe",sMg:400,sMl:5,vol:100}],
+ aciklama:"AOM ve toplum kökenli pnömonide yüksek doz amoksisilin.",warning:null},
+
+// ── AMOKSİSİLİN/KLAVULONAT ───────────────────────────────
+{key:"amoksklav_std",label:"Amoksisilin / Klavulonat standart doz",sinif:"antibakteriyel",yol:"PO",
+ doseMin:20,doseMax:22.5,doseRec:20,fixedMg:null,maxDozMg:875,
+ freq:2,freqPer:"günlük",totalDoz:null,olcek:5,suspMl:5,
+ defDur:10,durLabel:"5–14 gün",bRule:"amoksklav_std_konc",
+ preps:[
+  {brand:"AKLAV BİD Pediatrik Süsp. Hazırlamak İçin Kuru Toz 200 mg/28.5 mg 70 ml şişe",sMg:200,sMl:5,vol:70},
+  {brand:"AUGMENTIN Oral Süspansiyon Hazırlamak İçin Kuru Toz 200+28.5 mg/5 mL 70 ml şişe",sMg:200,sMl:5,vol:70},
+  {brand:"AMOKLAVİN-BID Oral Süspansiyon Hazırlamak İçin Kuru Toz 200/28.5 mg 70 ml şişe",sMg:200,sMl:5,vol:70},
+  {brand:"BİOMENT-BID Oral Süspansiyon İçin Kuru Toz 200 mg/28.5 mg 70 ml şişe",sMg:200,sMl:5,vol:70},
+  {brand:"CROXİLEX-BID Oral Süspansiyon Hazırlamak İçin Kuru Toz 200 mg/28 mg 70 ml şişe",sMg:200,sMl:5,vol:70},
+  {brand:"KLAMOKS BID Süspansiyon Hazırlamak İçin Toz 200 mg/28 mg 70 ml şişe",sMg:200,sMl:5,vol:70},
+  {brand:"KLAVUNAT BID Oral Süspansiyon Hazırlamak İçin Kuru Toz 200 mg/28 mg 70 ml şişe",sMg:200,sMl:5,vol:70},
+  {brand:"AKLAV BİD Pediatrik Süsp. Hazırlamak İçin Kuru Toz 200 mg/28.5 mg 100 ml şişe",sMg:200,sMl:5,vol:100},
+  {brand:"AMOKLAVİN-BID Oral Süspansiyon Hazırlamak İçin Kuru Toz 200/28.5 mg 100 ml şişe",sMg:200,sMl:5,vol:100},
+  {brand:"CROXİLEX-BID Oral Süspansiyon Hazırlamak İçin Kuru Toz 200 mg/28 mg 100 ml şişe",sMg:200,sMl:5,vol:100},
+  {brand:"KLAVUNAT BID Oral Süspansiyon Hazırlamak İçin Kuru Toz 200 mg/28 mg 100 ml şişe",sMg:200,sMl:5,vol:100},
+  {brand:"AKLAV BİD FORT Süspansiyon Hazırlamak İçin Kuru Toz 400 mg/57 mg 70 ml şişe",sMg:400,sMl:5,vol:70},
+  {brand:"AUGMENTIN Oral Süspansiyon Hazırlamak İçin Kuru Toz 400 mg+57 mg/5 ml 70 ml şişe",sMg:400,sMl:5,vol:70},
+  {brand:"AMOKLAVİN-BID FORTE Oral Süspansiyon Hazırlamak İçin Kuru Toz 400/57 mg 70 ml şişe",sMg:400,sMl:5,vol:70},
+  {brand:"BİOMENT-BID FORTE Oral Süspansiyon İçin Kuru Toz 400 mg/57 mg 70 ml şişe",sMg:400,sMl:5,vol:70},
+  {brand:"CROXİLEX-BID FORT Oral Süspansiyon Hazırlamak İçin Kuru Toz 400 mg/57 mg 70 ml şişe",sMg:400,sMl:5,vol:70},
+  {brand:"KLAMOKS BID FORT Süspansiyon Hazırlamak İçin Kuru Toz 400/57 mg 70 ml şişe",sMg:400,sMl:5,vol:70},
+  {brand:"KLAVUNAT BID FORTE Oral Süspansiyon Hazırlamak İçin Kuru Toz 400 mg/57 mg 70 ml şişe",sMg:400,sMl:5,vol:70},
+  {brand:"AKLAV BİD FORT Süspansiyon Hazırlamak İçin Kuru Toz 400 mg/57 mg 100 ml şişe",sMg:400,sMl:5,vol:100},
+  {brand:"AUGMENTIN Oral Süspansiyon Hazırlamak İçin Kuru Toz 400 mg+57 mg/5 ml 100 ml şişe",sMg:400,sMl:5,vol:100},
+  {brand:"AMOKLAVİN-BID FORTE Oral Süspansiyon Hazırlamak İçin Kuru Toz 400/57 mg 100 ml şişe",sMg:400,sMl:5,vol:100},
+  {brand:"CROXİLEX-BID FORT Oral Süspansiyon Hazırlamak İçin Kuru Toz 400 mg/57 mg 100 ml şişe",sMg:400,sMl:5,vol:100},
+  {brand:"KLAMOKS BID FORT Süspansiyon Hazırlamak İçin Kuru Toz 400/57 mg 100 ml şişe",sMg:400,sMl:5,vol:100},
+  {brand:"KLAVUNAT BID FORTE Oral Süspansiyon Hazırlamak İçin Kuru Toz 400 mg/57 mg 100 ml şişe",sMg:400,sMl:5,vol:100},
+  {brand:"AKLAV BİD FORT Süspansiyon Hazırlamak İçin Kuru Toz 400 mg/57 mg 140 ml şişe",sMg:400,sMl:5,vol:140},
+  {brand:"AMOKLAVİN-BID FORTE Oral Süspansiyon Hazırlamak İçin Kuru Toz 400/57 mg 140 ml şişe",sMg:400,sMl:5,vol:140},
+  {brand:"CROXİLEX-BID FORT Oral Süspansiyon Hazırlamak İçin Kuru Toz 400 mg/57 mg 140 ml şişe",sMg:400,sMl:5,vol:140},
+  {brand:"KLAMOKS BID FORT Süspansiyon Hazırlamak İçin Kuru Toz 400/57 mg 140 ml şişe",sMg:400,sMl:5,vol:140},
+  {brand:"AMOKLAVİN ES Oral Süspansiyon Hazırlamak İçin Kuru Toz 600 mg/42.9 mg 100 ml",sMg:600,sMl:5,vol:100},
+  {brand:"AUGMENTIN ES Oral Süspansiyon Hazırlamak İçin Kuru Toz 600 mg+42.9 mg/5 ml 100 ml",sMg:600,sMl:5,vol:100},
+  {brand:"CROXİLEX-ES Oral Süspansiyon Hazırlamak İçin Kuru Toz 600 mg/42.9 mg 100 ml",sMg:600,sMl:5,vol:100},
+  {brand:"KLAMOKS ES Oral Süspansiyon Hazırlamak İçin Kuru Toz 600 mg/42.9 mg 100 ml",sMg:600,sMl:5,vol:100},
+  {brand:"KLAVON ES Oral Süspansiyon Hazırlamak İçin Kuru Toz 600 mg/42.9 mg 100 ml",sMg:600,sMl:5,vol:100},
+  {brand:"KLAVUNAT ES Oral Süspansiyon Hazırlamak İçin Kuru Toz 600 mg/42.9 mg 100 ml",sMg:600,sMl:5,vol:100},
+  {brand:"CROXİLEX-ES Oral Süspansiyon Hazırlamak İçin Kuru Toz 600 mg/42.9 mg 150 ml",sMg:600,sMl:5,vol:150},
+  {brand:"KLAMOKS ES Oral Süspansiyon Hazırlamak İçin Kuru Toz 600 mg/42.9 mg 150 ml",sMg:600,sMl:5,vol:150}],
+ aciklama:">3 ay üzeri kullanım uyarısı mevcuttur. Endikasyona göre 5–14 gün.",
+ warning:">3 ay üzeri kullanım uyarısı mevcuttur."},
+
+{key:"amoksklav_yuk",label:"Amoksisilin / Klavulonat yüksek doz",sinif:"antibakteriyel",yol:"PO",
+ doseMin:45,doseMax:45,doseRec:45,fixedMg:null,maxDozMg:2000,
+ freq:2,freqPer:"günlük",totalDoz:null,olcek:5,suspMl:5,
+ defDur:10,durLabel:"5–14 gün",bRule:"amoksklav_yuk",
+ preps:[
+  {brand:"AMOKLAVİN ES Oral Süspansiyon Hazırlamak İçin Kuru Toz 600 mg/42.9 mg 100 ml",sMg:600,sMl:5,vol:100},
+  {brand:"AUGMENTIN ES Oral Süspansiyon Hazırlamak İçin Kuru Toz 600 mg+42.9 mg/5 ml 100 ml",sMg:600,sMl:5,vol:100},
+  {brand:"CROXİLEX-ES Oral Süspansiyon Hazırlamak İçin Kuru Toz 600 mg/42.9 mg 100 ml",sMg:600,sMl:5,vol:100},
+  {brand:"KLAMOKS ES Oral Süspansiyon Hazırlamak İçin Kuru Toz 600 mg/42.9 mg 100 ml",sMg:600,sMl:5,vol:100},
+  {brand:"KLAVON ES Oral Süspansiyon Hazırlamak İçin Kuru Toz 600 mg/42.9 mg 100 ml",sMg:600,sMl:5,vol:100},
+  {brand:"KLAVUNAT ES Oral Süspansiyon Hazırlamak İçin Kuru Toz 600 mg/42.9 mg 100 ml",sMg:600,sMl:5,vol:100},
+  {brand:"CROXİLEX-ES Oral Süspansiyon Hazırlamak İçin Kuru Toz 600 mg/42.9 mg 150 ml",sMg:600,sMl:5,vol:150},
+  {brand:"KLAMOKS ES Oral Süspansiyon Hazırlamak İçin Kuru Toz 600 mg/42.9 mg 150 ml",sMg:600,sMl:5,vol:150}],
+ aciklama:">3 ay üzeri kullanım uyarısı mevcuttur. Endikasyona göre 5–14 gün.",
+ warning:">3 ay üzeri kullanım uyarısı mevcuttur."},
+
+// ── ASİKLOVİR ────────────────────────────────────────────
+{key:"asik_lab",label:"Asiklovir — Herpes labialis",sinif:"antiviral",yol:"PO",
+ doseMin:20,doseMax:20,doseRec:20,fixedMg:null,maxDozMg:800,
+ freq:4,freqPer:"günlük",totalDoz:null,olcek:5,suspMl:5,
+ defDur:7,durLabel:"5–7 gün",bRule:"min_kutu",
+ preps:[{brand:"AKLOVİR Oral Süspansiyon 200 mg/5 ml 100 ml şişe",sMg:200,sMl:5,vol:100}],
+ aciklama:"5–7 gün kullanım önerisi mevcuttur.",warning:null},
+
+{key:"asik_gen_ilk",label:"Asiklovir — Herpes genitalis (ilk enfeksiyon)",sinif:"antiviral",yol:"PO",
+ doseMin:20,doseMax:20,doseRec:20,fixedMg:null,maxDozMg:400,
+ freq:3,freqPer:"günlük",totalDoz:null,olcek:5,suspMl:5,
+ defDur:7,durLabel:"7–10 gün",bRule:"min_kutu",
+ preps:[{brand:"AKLOVİR Oral Süspansiyon 200 mg/5 ml 100 ml şişe",sMg:200,sMl:5,vol:100}],
+ aciklama:"İlk enfeksiyonda 7–10 gün kullanım önerisi mevcuttur.",warning:null},
+
+{key:"asik_gen_rek",label:"Asiklovir — Herpes genitalis (rekürren)",sinif:"antiviral",yol:"PO",
+ doseMin:20,doseMax:20,doseRec:20,fixedMg:null,maxDozMg:400,
+ freq:3,freqPer:"günlük",totalDoz:null,olcek:5,suspMl:5,
+ defDur:7,durLabel:"5 gün",bRule:"min_kutu",
+ preps:[{brand:"AKLOVİR Oral Süspansiyon 200 mg/5 ml 100 ml şişe",sMg:200,sMl:5,vol:100}],
+ aciklama:"Rekürren enfeksiyonda 5 gün kullanım önerisi mevcuttur.",warning:null},
+
+{key:"asik_var",label:"Asiklovir — Varisella (suçiçeği)",sinif:"antiviral",yol:"PO",
+ doseMin:20,doseMax:20,doseRec:20,fixedMg:null,maxDozMg:800,
+ freq:4,freqPer:"günlük",totalDoz:null,olcek:5,suspMl:5,
+ defDur:7,durLabel:"5 gün",bRule:"min_kutu",
+ preps:[{brand:"AKLOVİR Oral Süspansiyon 200 mg/5 ml 100 ml şişe",sMg:200,sMl:5,vol:100}],
+ aciklama:"5 gün kullanım önerisi mevcuttur.",warning:null},
+
+{key:"asik_zona",label:"Asiklovir — Zona",sinif:"antiviral",yol:"PO",
+ doseMin:20,doseMax:20,doseRec:20,fixedMg:null,maxDozMg:800,
+ freq:5,freqPer:"günlük",totalDoz:null,olcek:5,suspMl:5,
+ defDur:7,durLabel:"5–7 gün",bRule:"min_kutu",
+ preps:[{brand:"AKLOVİR Oral Süspansiyon 200 mg/5 ml 100 ml şişe",sMg:200,sMl:5,vol:100}],
+ aciklama:"5–7 gün kullanım önerisi mevcuttur.",warning:null},
+
+// ── AZİTROMİSİN ──────────────────────────────────────────
+{key:"azitro",label:"Azitromisin — 5 günlük rejim",sinif:"antibakteriyel",yol:"PO",
+ doseMin:null,doseMax:null,doseRec:null,fixedMg:null,maxDozMg:500,
+ isAzitro:true,freq:1,freqPer:"günlük",totalDoz:null,olcek:5,suspMl:5,
+ defDur:5,durLabel:"5 gün",bRule:"azitro",
+ preps:[
+  {brand:"AZELTİN Oral Süspansiyon İçin Kuru Toz 200 mg/5 ml 15 ml",sMg:200,sMl:5,vol:15},
+  {brand:"AZİTRO Oral Süspansiyon Hazırlamak İçin Kuru Toz 200 mg/5 ml 15 ml",sMg:200,sMl:5,vol:15},
+  {brand:"AZOMAX Oral Süspansiyon Hazırlamak İçin Toz 200 mg/5 ml 15 ml",sMg:200,sMl:5,vol:15},
+  {brand:"AZRO Oral Süspansiyon Hazırlamak İçin Kuru Toz 200 mg/5 ml 15 ml",sMg:200,sMl:5,vol:15},
+  {brand:"ZİTROMAX Oral Süspansiyon 200 mg/5 ml 15 ml",sMg:200,sMl:5,vol:15},
+  {brand:"AZELTİN Oral Süspansiyon İçin Kuru Toz 200 mg/5 ml 30 ml",sMg:200,sMl:5,vol:30},
+  {brand:"AZİTRO Oral Süspansiyon Hazırlamak İçin Kuru Toz 200 mg/5 ml 30 ml",sMg:200,sMl:5,vol:30},
+  {brand:"AZOMAX Oral Süspansiyon Hazırlamak İçin Toz 200 mg/5 ml 30 ml",sMg:200,sMl:5,vol:30},
+  {brand:"AZRO Oral Süspansiyon Hazırlamak İçin Kuru Toz 200 mg/5 ml 30 ml",sMg:200,sMl:5,vol:30},
+  {brand:"ZİTROMAX Oral Süspansiyon 200 mg/5 ml 30 ml",sMg:200,sMl:5,vol:30}],
+ aciklama:"5 gün: 1. gün 10 mg/kg/doz, 2.–5. günler 5 mg/kg/doz.",warning:null},
+
+// ── DEMİR (II) ───────────────────────────────────────────
+{key:"dem2",label:"Demir (II) ferröz glisin sülfat",sinif:"hematinik",yol:"PO",
+ doseMin:3,doseMax:3,doseRec:3,fixedMg:null,maxDozMg:null,
+ freq:1,freqPer:"günlük",totalDoz:null,olcek:15,suspMl:5,
+ defDur:30,durLabel:"30 gün",bRule:"min_kutu",
+ preps:[{brand:"FERRO SANOL B Şurup 150 ml şişe (Elemental demir 20 mg/5 ml)",sMg:20,sMl:5,vol:150}],
+ aciklama:"3 mg/kg/doz, 1×1/gün.",warning:null},
+
+{key:"dem3",label:"Demir (III) hidroksit polimaltoz",sinif:"hematinik",yol:"PO",
+ doseMin:5,doseMax:5,doseRec:5,fixedMg:null,maxDozMg:null,
+ freq:1,freqPer:"günlük",totalDoz:null,olcek:5,suspMl:5,
+ defDur:30,durLabel:"30 gün",bRule:"min_kutu",
+ preps:[{brand:"SANTAFER Şurup 50 mg/5 ml 150 ml şişe",sMg:50,sMl:5,vol:150}],
+ aciklama:"5 mg/kg/doz, 1×1/gün.",warning:null},
+
+{key:"deslo_6ay",noWeight:true,label:"Desloratadin — 6–11 ay",sinif:"antihistaminik",yol:"PO",
+ doseMin:null,doseMax:null,doseRec:null,fixedMg:1,maxDozMg:5,
+ freq:1,freqPer:"günlük",totalDoz:null,olcek:5,suspMl:5,
+ defDur:7,durLabel:"—",bRule:"min_kutu",
+ preps:[
+  {brand:"ALORES Şurup 2.5 mg/5 ml 150 ml",sMg:2.5,sMl:5,vol:150},
+  {brand:"DELODAY Şurup 0.5 mg/ml 150 ml",sMg:2.5,sMl:5,vol:150},
+  {brand:"DESLORAN Şurup 2.5 mg/5 ml 150 ml",sMg:2.5,sMl:5,vol:150},
+  {brand:"DORANİT Şurup 2.5 mg/5 ml 150 ml",sMg:2.5,sMl:5,vol:150},
+  {brand:"DOXAFİN Şurup 2.5 mg/5 ml 150 ml",sMg:2.5,sMl:5,vol:150},
+  {brand:"LORDES Şurup 2.5 mg/5 ml 150 ml",sMg:2.5,sMl:5,vol:150}],
+ aciklama:"Sabit doz: 1 mg/gün (2 ml).",warning:">6 ay üzeri kullanım önerisi mevcut."},
+
+{key:"deslo_15",noWeight:true,label:"Desloratadin — 1–5 yaş",sinif:"antihistaminik",yol:"PO",
+ doseMin:null,doseMax:null,doseRec:null,fixedMg:1.25,maxDozMg:5,
+ freq:1,freqPer:"günlük",totalDoz:null,olcek:5,suspMl:5,
+ defDur:7,durLabel:"—",bRule:"min_kutu",
+ preps:[
+  {brand:"ALORES Şurup 2.5 mg/5 ml 150 ml",sMg:2.5,sMl:5,vol:150},
+  {brand:"DELODAY Şurup 0.5 mg/ml 150 ml",sMg:2.5,sMl:5,vol:150},
+  {brand:"DESLORAN Şurup 2.5 mg/5 ml 150 ml",sMg:2.5,sMl:5,vol:150},
+  {brand:"DORANİT Şurup 2.5 mg/5 ml 150 ml",sMg:2.5,sMl:5,vol:150},
+  {brand:"DOXAFİN Şurup 2.5 mg/5 ml 150 ml",sMg:2.5,sMl:5,vol:150},
+  {brand:"LORDES Şurup 2.5 mg/5 ml 150 ml",sMg:2.5,sMl:5,vol:150}],
+ aciklama:"Sabit doz: 1,25 mg/gün (2,5 ml).",warning:">6 ay üzeri kullanım önerisi mevcut."},
+
+{key:"deslo_611",noWeight:true,label:"Desloratadin — 6–11 yaş",sinif:"antihistaminik",yol:"PO",
+ doseMin:null,doseMax:null,doseRec:null,fixedMg:2.5,maxDozMg:5,
+ freq:1,freqPer:"günlük",totalDoz:null,olcek:5,suspMl:5,
+ defDur:7,durLabel:"—",bRule:"min_kutu",
+ preps:[
+  {brand:"ALORES Şurup 2.5 mg/5 ml 150 ml",sMg:2.5,sMl:5,vol:150},
+  {brand:"DELODAY Şurup 0.5 mg/ml 150 ml",sMg:2.5,sMl:5,vol:150},
+  {brand:"DESLORAN Şurup 2.5 mg/5 ml 150 ml",sMg:2.5,sMl:5,vol:150},
+  {brand:"DORANİT Şurup 2.5 mg/5 ml 150 ml",sMg:2.5,sMl:5,vol:150},
+  {brand:"DOXAFİN Şurup 2.5 mg/5 ml 150 ml",sMg:2.5,sMl:5,vol:150},
+  {brand:"LORDES Şurup 2.5 mg/5 ml 150 ml",sMg:2.5,sMl:5,vol:150}],
+ aciklama:"Sabit doz: 2,5 mg/gün (1 ölçek).",warning:">6 ay üzeri kullanım önerisi mevcut."},
+
+{key:"deslo_1217",noWeight:true,label:"Desloratadin — 12–17 yaş",sinif:"antihistaminik",yol:"PO",
+ doseMin:null,doseMax:null,doseRec:null,fixedMg:5,maxDozMg:5,
+ freq:1,freqPer:"günlük",totalDoz:null,olcek:5,suspMl:5,
+ defDur:7,durLabel:"—",bRule:"min_kutu",
+ preps:[
+  {brand:"ALORES Şurup 2.5 mg/5 ml 150 ml",sMg:2.5,sMl:5,vol:150},
+  {brand:"DELODAY Şurup 0.5 mg/ml 150 ml",sMg:2.5,sMl:5,vol:150},
+  {brand:"DESLORAN Şurup 2.5 mg/5 ml 150 ml",sMg:2.5,sMl:5,vol:150},
+  {brand:"DORANİT Şurup 2.5 mg/5 ml 150 ml",sMg:2.5,sMl:5,vol:150},
+  {brand:"DOXAFİN Şurup 2.5 mg/5 ml 150 ml",sMg:2.5,sMl:5,vol:150},
+  {brand:"LORDES Şurup 2.5 mg/5 ml 150 ml",sMg:2.5,sMl:5,vol:150}],
+ aciklama:"Sabit doz: 5 mg/gün (2 ölçek).",warning:">6 ay üzeri kullanım önerisi mevcut."},
+
+// ── FLUKONAZOL ───────────────────────────────────────────
+{key:"fluko",label:"Flukonazol (orofaringeal kandidiyazis)",sinif:"antifungal",yol:"PO",
+ doseMin:6,doseMax:12,doseRec:12,fixedMg:null,maxDozMg:200,
+ freq:1,freqPer:"günlük",totalDoz:null,olcek:5,suspMl:1,
+ defDur:7,durLabel:"7–14 gün",bRule:"min_kutu",
+ preps:[{brand:"TRİFLUCAN Şurup 5 mg/ml 70 ml şişe",sMg:5,sMl:1,vol:70}],
+ aciklama:"7–14 gün kullanım önerisi mevcuttur.",warning:null},
+
+// ── İBUPROFEN ────────────────────────────────────────────
+{key:"ibupro",label:"İbuprofen standart doz",sinif:"NSAİ",yol:"PO",
+ doseMin:5,doseMax:10,doseRec:10,fixedMg:null,maxDozMg:400,
+ freq:4,freqPer:"günlük",totalDoz:null,olcek:5,suspMl:5,
+ defDur:null,isDefLH:true,durLabel:"LH",bRule:"ibupro_konc",
+ preps:[
+  {brand:"DOLVEN Pediatrik Şurup 100 mg/5 ml 100 ml",sMg:100,sMl:5,vol:100},
+  {brand:"İBUFEN Pediatrik Şurup 100 mg/5 ml 100 ml",sMg:100,sMl:5,vol:100},
+  {brand:"PEDİFEN Pediatrik Şurup 100 mg/5 ml 100 ml",sMg:100,sMl:5,vol:100},
+  {brand:"BRUPREX Süspansiyon 200 mg/5 ml 100 ml",sMg:200,sMl:5,vol:100},
+  {brand:"COLDFEN FORT Süspansiyon 200 mg/5 ml 100 ml",sMg:200,sMl:5,vol:100},
+  {brand:"İBU-FORT Süspansiyon 200 mg/5 ml 100 ml",sMg:200,sMl:5,vol:100}],
+ aciklama:">6 ay üzeri kullanım önerisi mevcut. Yemekle alınması önerilir.",
+ warning:">6 ay üzeri kullanım önerisi mevcut. GİS koruma için yemekle alınması önerilir."},
+
+// ── KLARİTROMİSİN ────────────────────────────────────────
+{key:"klari",label:"Klaritromisin (atipik pnömoni)",sinif:"antibakteriyel",yol:"PO",
+ doseMin:7.5,doseMax:7.5,doseRec:7.5,fixedMg:null,maxDozMg:500,
+ freq:2,freqPer:"günlük",totalDoz:null,olcek:5,suspMl:5,
+ defDur:7,durLabel:"10 gün",bRule:"klari_konc",
+ preps:[
+  {brand:"KLAMER Oral Süspansiyon Hazırlamak İçin Granül 125 mg/5 ml 70 ml",sMg:125,sMl:5,vol:70},
+  {brand:"KLAROMİN Oral Süspansiyon Hazırlamak İçin Granül 125 mg/5 ml 70 ml",sMg:125,sMl:5,vol:70},
+  {brand:"MACROL Oral Süspansiyon İçin Granül 125 mg/5 ml 70 ml",sMg:125,sMl:5,vol:70},
+  {brand:"UNİKLAR Süspansiyon Hazırlamak İçin Kuru Toz 125 mg/5 ml 70 ml",sMg:125,sMl:5,vol:70},
+  {brand:"KLAMER Oral Süspansiyon Hazırlamak İçin Granül 250 mg/5 ml 100 ml",sMg:250,sMl:5,vol:100},
+  {brand:"KLAROMİN Oral Süspansiyon Hazırlamak İçin Granül 250 mg/5 ml 100 ml",sMg:250,sMl:5,vol:100},
+  {brand:"MACROL Oral Süspansiyon İçin Granül 250 mg/5 ml 100 ml",sMg:250,sMl:5,vol:100},
+  {brand:"MAXİCLAR Süspansiyon Hazırlamak İçin Toz 250 mg/5 ml 100 ml",sMg:250,sMl:5,vol:100}],
+ aciklama:">3 ay üzeri kullanım uyarısı mevcut. 10 gün kullanım önerilir.",
+ warning:">3 ay üzeri kullanım uyarısı mevcut."},
+
+// ── LAKTÜLOZ ─────────────────────────────────────────────
+{key:"laktuloz",label:"Laktüloz",sinif:"laksatif",yol:"PO",
+ doseMin:null,doseMax:null,doseRec:null,fixedMg:670,fixedMgMax:2000,maxDozMg:40000,
+ freq:1,freqPer:"günlük",totalDoz:null,olcek:15,suspMl:1,
+ defDur:30,durLabel:"Etki başlayana kadar",bRule:"min_kutu",
+ preps:[
+  {brand:"LACTULAC Şurup 670 mg/ml 250 ml",sMg:670,sMl:1,vol:250},
+  {brand:"LAEVOLAC Şurup 670 mg/ml 250 ml",sMg:670,sMl:1,vol:250},
+  {brand:"MEDULAC-WM Şurup 667 mg/ml 250 ml",sMg:670,sMl:1,vol:250},
+  {brand:"OSMOLAK Solüsyon 667 mg/ml 250 ml",sMg:670,sMl:1,vol:250},
+  {brand:"DUPHALAC Şurup 667 mg/ml 300 ml",sMg:670,sMl:1,vol:300},
+  {brand:"LAXAMOT Şurup 667 mg/ml 300 ml",sMg:670,sMl:1,vol:300},
+  {brand:"ORALAC Şurup 670 mg/ml 300 ml",sMg:670,sMl:1,vol:300}],
+ aciklama:"Başlangıç dozu: 670 mg/gün (1 ölçek). Gerekirse 2000 mg/güne kadar artırılabilir. Bireysel titrasyona göre belirlenir.",warning:null},
+
+// ── METRONİDAZOL ─────────────────────────────────────────
+{key:"metro_ameb",label:"Metronidazol (amebiyaz)",sinif:"antibakteriyel",yol:"PO",
+ doseMin:16.7,doseMax:16.7,doseRec:16.7,fixedMg:null,maxDozMg:750,
+ freq:3,freqPer:"günlük",totalDoz:null,olcek:5,suspMl:5,
+ defDur:7,durLabel:"10 gün",bRule:"min_kutu",
+ preps:[{brand:"FLAGYL Oral Süspansiyon 125 mg/5 ml 120 ml şişe",sMg:125,sMl:5,vol:120}],
+ aciklama:"Amebiyaz tedavisinde 10 gün kullanım önerilir.",warning:null},
+
+// ── NİTROFURANTOİN ───────────────────────────────────────
+{key:"nitro",label:"Nitrofurantoin",sinif:"antibakteriyel",yol:"PO",
+ doseMin:5,doseMax:7,doseRec:5,fixedMg:null,maxDozMg:100,
+ freq:4,freqPer:"günlük",totalDoz:null,olcek:5,suspMl:5,
+ defDur:7,durLabel:"7 gün",bRule:"min_kutu",
+ preps:[{brand:"PİYELOSEPTYL Oral Süspansiyon 25 mg/5 ml 100 ml şişe",sMg:25,sMl:5,vol:100}],
+ aciklama:">1 aydan büyüklerde kullanım önerisi mevcut.",
+ warning:">1 aydan büyüklerde kullanım önerisi mevcuttur."},
+
+// ── OSELTAMİVİR ──────────────────────────────────────────
+{key:"osel_lt15",noWeight:true,label:"Oseltamivir — < 15 kg",sinif:"antiviral",yol:"PO",
+ doseMin:null,doseMax:null,doseRec:null,fixedMg:30,maxDozMg:75,
+ freq:2,freqPer:"günlük",totalDoz:null,olcek:5,suspMl:1,
+ defDur:5,durLabel:"5 gün",bRule:"min_kutu",
+ preps:[
+  {brand:"OSELMİR Oral Süspansiyon Hazırlamak İçin Toz 12 mg/ml 65 ml",sMg:12,sMl:1,vol:65},
+  {brand:"ENFLUVİR Oral Süspansiyon İçin Toz 12 mg/ml 75 ml",sMg:12,sMl:1,vol:75},
+  {brand:"FLUZAVİR Oral Süspansiyon Hazırlamak İçin Toz 12 mg/ml 75 ml",sMg:12,sMl:1,vol:75}],
+ aciklama:"Sabit doz: 30 mg/doz, 2×1, 5 gün.",warning:null},
+
+{key:"osel_1523",noWeight:true,label:"Oseltamivir — 15–23 kg",sinif:"antiviral",yol:"PO",
+ doseMin:null,doseMax:null,doseRec:null,fixedMg:45,maxDozMg:75,
+ freq:2,freqPer:"günlük",totalDoz:null,olcek:5,suspMl:1,
+ defDur:5,durLabel:"5 gün",bRule:"min_kutu",
+ preps:[
+  {brand:"OSELMİR Oral Süspansiyon Hazırlamak İçin Toz 12 mg/ml 65 ml",sMg:12,sMl:1,vol:65},
+  {brand:"ENFLUVİR Oral Süspansiyon İçin Toz 12 mg/ml 75 ml",sMg:12,sMl:1,vol:75},
+  {brand:"FLUZAVİR Oral Süspansiyon Hazırlamak İçin Toz 12 mg/ml 75 ml",sMg:12,sMl:1,vol:75}],
+ aciklama:"Sabit doz: 45 mg/doz, 2×1, 5 gün.",warning:null},
+
+{key:"osel_2340",noWeight:true,label:"Oseltamivir — 23–40 kg",sinif:"antiviral",yol:"PO",
+ doseMin:null,doseMax:null,doseRec:null,fixedMg:60,maxDozMg:75,
+ freq:2,freqPer:"günlük",totalDoz:null,olcek:5,suspMl:1,
+ defDur:5,durLabel:"5 gün",bRule:"min_kutu",
+ preps:[
+  {brand:"OSELMİR Oral Süspansiyon Hazırlamak İçin Toz 12 mg/ml 65 ml",sMg:12,sMl:1,vol:65},
+  {brand:"ENFLUVİR Oral Süspansiyon İçin Toz 12 mg/ml 75 ml",sMg:12,sMl:1,vol:75},
+  {brand:"FLUZAVİR Oral Süspansiyon Hazırlamak İçin Toz 12 mg/ml 75 ml",sMg:12,sMl:1,vol:75}],
+ aciklama:"Sabit doz: 60 mg/doz, 2×1, 5 gün.",warning:null},
+
+{key:"osel_gt40",noWeight:true,label:"Oseltamivir — > 40 kg",sinif:"antiviral",yol:"PO",
+ doseMin:null,doseMax:null,doseRec:null,fixedMg:75,maxDozMg:75,
+ freq:2,freqPer:"günlük",totalDoz:null,olcek:5,suspMl:1,
+ defDur:5,durLabel:"5 gün",bRule:"min_kutu",
+ preps:[
+  {brand:"OSELMİR Oral Süspansiyon Hazırlamak İçin Toz 12 mg/ml 65 ml",sMg:12,sMl:1,vol:65},
+  {brand:"ENFLUVİR Oral Süspansiyon İçin Toz 12 mg/ml 75 ml",sMg:12,sMl:1,vol:75},
+  {brand:"FLUZAVİR Oral Süspansiyon Hazırlamak İçin Toz 12 mg/ml 75 ml",sMg:12,sMl:1,vol:75}],
+ aciklama:"Sabit doz: 75 mg/doz, 2×1, 5 gün.",warning:null},
+
+// ── PARASETAMOL ──────────────────────────────────────────
+{key:"para",label:"Parasetamol",sinif:"antipiretik/analjezik",yol:"PO",
+ doseMin:10,doseMax:15,doseRec:12,fixedMg:null,maxDozMg:500,
+ freq:4,freqPer:"günlük",totalDoz:null,olcek:5,suspMl:5,
+ defDur:null,isDefLH:true,durLabel:"LH",bRule:"para_konc",
+ preps:[
+  {brand:"GRİPİN BEBE Şurup 120 mg/5 ml 100 ml",sMg:120,sMl:5,vol:100},
+  {brand:"TYLOL Pediatrik Süspansiyon 120 mg/5 ml 100 ml",sMg:120,sMl:5,vol:100},
+  {brand:"A-PER Pediatrik Şurup 120 mg/5 ml 150 ml",sMg:120,sMl:5,vol:150},
+  {brand:"CALPOL Süspansiyon 120 mg/5 ml 150 ml",sMg:120,sMl:5,vol:150},
+  {brand:"GERALGİNE-P Pediyatrik Oral Çözelti 120 mg/5 ml 150 ml",sMg:120,sMl:5,vol:150},
+  {brand:"KİDMOL Oral Süspansiyon 120 mg/5 ml 150 ml",sMg:120,sMl:5,vol:150},
+  {brand:"MİNAFEN Şurup 120 mg/5 ml 150 ml",sMg:120,sMl:5,vol:150},
+  {brand:"MİNAMOL Oral Süspansiyon 120 mg/5 ml 150 ml",sMg:120,sMl:5,vol:150},
+  {brand:"MİNOPAR Şurup 120 mg/5 ml 150 ml",sMg:120,sMl:5,vol:150},
+  {brand:"PARANOX Pediatrik Şurup 120 mg/5 ml 150 ml",sMg:120,sMl:5,vol:150},
+  {brand:"PARCETOL Şurup 120 mg/5 ml 150 ml",sMg:120,sMl:5,vol:150},
+  {brand:"PAROL Süspansiyon 120 mg/5 ml 150 ml",sMg:120,sMl:5,vol:150},
+  {brand:"A-FERİN ZERO 6 PLUS Oral Süspansiyon 250 mg/5 ml 150 ml",sMg:250,sMl:5,vol:150},
+  {brand:"BERKO-SETAMOL PLUS Pediyatrik Oral Süspansiyon 250 mg/5 ml 150 ml",sMg:250,sMl:5,vol:150},
+  {brand:"CALPOL 6 PLUS Süspansiyon 250 mg/5 ml 150 ml",sMg:250,sMl:5,vol:150},
+  {brand:"KİDMOL Oral Süspansiyon 250 mg/5 ml 150 ml",sMg:250,sMl:5,vol:150},
+  {brand:"MİNOPAR PLUS Pediyatrik Oral Süspansiyon 250 mg/5 ml 150 ml",sMg:250,sMl:5,vol:150},
+  {brand:"PAROL PLUS Oral Süspansiyon 250 mg/5 ml 150 ml",sMg:250,sMl:5,vol:150},
+  {brand:"PİRETİKOL Oral Süspansiyon 250 mg/5 ml 150 ml",sMg:250,sMl:5,vol:150},
+  {brand:"TYLOL 6 PLUS Süspansiyon 250 mg/5 ml 150 ml",sMg:250,sMl:5,vol:150}],
+ aciklama:"Doz: 10–15 mg/kg/doz. Günlük maks: 60 mg/kg. Doz aralığı en az 4 saat.",
+ warning:"Parasetamol içeren başka ilaçlarla kullanılmamalıdır."},
+
+// ── PENİSİLİN V ──────────────────────────────────────────
+{key:"penV_lt27",noWeight:true,label:"Penisilin V potasyum — < 27 kg",sinif:"antibakteriyel",yol:"PO",
+ doseMin:null,doseMax:null,doseRec:null,fixedMg:250,maxDozMg:1333,
+ freq:3,freqPer:"günlük",totalDoz:null,olcek:5,suspMl:5,
+ defDur:10,durLabel:"10 gün",bRule:"min_kutu",
+ preps:[
+  {brand:"PEN-OS Oral Süspansiyon İçin Toz 400.000 IU (250 mg) 80 ml",sMg:250,sMl:5,vol:80},
+  {brand:"PEN-OS Oral Süspansiyon İçin Toz 400.000 IU (250 mg) 160 ml",sMg:250,sMl:5,vol:160}],
+ aciklama:"< 27 kg sabit doz: 250 mg/doz, 3×1, 10 gün.",
+ warning:"Penisilinlere ve sefalosporinlere duyarlı olanlarda kontrendikedir."},
+
+{key:"penV_gt27",noWeight:true,label:"Penisilin V potasyum — > 27 kg",sinif:"antibakteriyel",yol:"PO",
+ doseMin:null,doseMax:null,doseRec:null,fixedMg:500,maxDozMg:1333,
+ freq:3,freqPer:"günlük",totalDoz:null,olcek:5,suspMl:5,
+ defDur:10,durLabel:"10 gün",bRule:"min_kutu",
+ preps:[
+  {brand:"PEN-OS Oral Süspansiyon İçin Toz 400.000 IU (250 mg) 80 ml",sMg:250,sMl:5,vol:80},
+  {brand:"PEN-OS Oral Süspansiyon İçin Toz 400.000 IU (250 mg) 160 ml",sMg:250,sMl:5,vol:160}],
+ aciklama:"> 27 kg sabit doz: 500 mg/doz, 3×1, 10 gün.",
+ warning:"Penisilinlere ve sefalosporinlere duyarlı olanlarda kontrendikedir."},
+
+// ── PİRANTEL PAMOAT ──────────────────────────────────────
+{key:"pirantel",label:"Pirantel pamoat",sinif:"antihelmintik",yol:"PO",
+ doseMin:11,doseMax:11,doseRec:11,fixedMg:null,maxDozMg:1000,
+ freq:1,freqPer:"2 haftada 1",totalDoz:2,olcek:5,suspMl:5,
+ isDefHafta:true,defDur:null,durLabel:"Tek doz × 2 (2 haftada bir)",bRule:"min_kutu",
+ preps:[{brand:"KONTİL Süspansiyon 250 mg/5 ml 15 ml şişe",sMg:250,sMl:5,vol:15}],
+ aciklama:">2 yaş ve üzeri kullanım önerisi mevcuttur. Tek doz, 2 hafta sonra tekrarlanır.",
+ warning:">2 yaş ve üzeri kullanım önerisi mevcuttur."},
+
+// ── SEFALEKSİN ───────────────────────────────────────────
+{key:"sefalek_gas",label:"Sefaleksin (GAS tonsilliti)",sinif:"antibakteriyel",yol:"PO",
+ doseMin:20,doseMax:20,doseRec:20,fixedMg:null,maxDozMg:500,
+ freq:2,freqPer:"günlük",totalDoz:null,olcek:5,suspMl:5,
+ defDur:10,durLabel:"10 gün",bRule:"sefalek_gas_konc",
+ preps:[
+  {brand:"MAKSİPOR Oral Süspansiyon İçin Kuru Toz 250 mg/5 ml 100 ml",sMg:250,sMl:5,vol:100},
+  {brand:"SEF Oral Süspansiyon Tozu 250 mg/5 ml 100 ml",sMg:250,sMl:5,vol:100},
+  {brand:"SEF Oral Süspansiyon Tozu 500 mg/5 ml 100 ml",sMg:500,sMl:5,vol:100}],
+ aciklama:"GAS tonsillofarenjiti için 10 gün tamamlanmalıdır.",
+ warning:"Penisilin ve sefalosporinlere aşırı duyarlılık varsa kontrendikedir."},
+
+{key:"sefalek_dyde",label:"Sefaleksin (DYDE)",sinif:"antibakteriyel",yol:"PO",
+ doseMin:6.25,doseMax:25,doseRec:12.5,fixedMg:null,maxDozMg:500,
+ freq:3,freqPer:"günlük",totalDoz:null,olcek:5,suspMl:5,
+ defDur:7,durLabel:"7 gün",bRule:"sefalek_dyde_konc",
+ preps:[
+  {brand:"MAKSİPOR Oral Süspansiyon İçin Kuru Toz 250 mg/5 ml 100 ml",sMg:250,sMl:5,vol:100},
+  {brand:"SEF Oral Süspansiyon Tozu 250 mg/5 ml 100 ml",sMg:250,sMl:5,vol:100},
+  {brand:"SEF Oral Süspansiyon Tozu 500 mg/5 ml 100 ml",sMg:500,sMl:5,vol:100}],
+ aciklama:"Deri ve yumuşak doku enfeksiyonlarında kullanılır.",
+ warning:"Penisilin ve sefalosporinlere aşırı duyarlılık varsa kontrendikedir."},
+
+// ── SEFDİNİR ─────────────────────────────────────────────
+{key:"sefdinir",label:"Sefdinir",sinif:"antibakteriyel",yol:"PO",
+ doseMin:14,doseMax:14,doseRec:14,fixedMg:null,maxDozMg:600,
+ freq:1,freqPer:"günlük",totalDoz:null,olcek:5,suspMl:5,
+ defDur:10,durLabel:"10 gün",bRule:"sefdinir_konc",
+ preps:[
+  {brand:"CEMPES Oral Süspansiyon İçin Toz 125 mg/5 ml 100 ml",sMg:125,sMl:5,vol:100},
+  {brand:"CEFDİFİX Oral Süspansiyon Hazırlamak İçin Toz 125 mg/5 ml 100 ml",sMg:125,sMl:5,vol:100},
+  {brand:"CEFTİNEX Oral Süspansiyon Hazırlamak İçin Kuru Toz 125 mg/5 ml 100 ml",sMg:125,sMl:5,vol:100},
+  {brand:"CLASEM Oral Süspansiyon İçin Toz 125 mg/5 ml 100 ml",sMg:125,sMl:5,vol:100},
+  {brand:"ELUCEF Oral Süspansiyon Hazırlamak İçin Kuru Toz 125 mg/5 ml 100 ml",sMg:125,sMl:5,vol:100},
+  {brand:"ENCEF Oral Süspansiyon Hazırlamak İçin Kuru Toz 125 mg/5 ml 100 ml",sMg:125,sMl:5,vol:100},
+  {brand:"TAMCEF Süspansiyon Hazırlamak İçin Kuru Toz 125 mg/5 ml 100 ml",sMg:125,sMl:5,vol:100},
+  {brand:"TRİCEF Oral Süspansiyon Hazırlamak İçin Kuru Toz 125 mg/5 ml 100 ml",sMg:125,sMl:5,vol:100},
+  {brand:"CEFDİFİX Oral Süspansiyon Hazırlamak İçin Toz 250 mg/5 ml 100 ml",sMg:250,sMl:5,vol:100},
+  {brand:"CEFORİST Oral Süspansiyon Hazırlamak İçin Toz 250 mg/5 ml 100 ml",sMg:250,sMl:5,vol:100},
+  {brand:"CEFTİNEX Oral Süspansiyon Hazırlamak İçin Kuru Toz 250 mg/5 ml 100 ml",sMg:250,sMl:5,vol:100},
+  {brand:"CLASEM Oral Süspansiyon İçin Toz 250 mg/5 ml 100 ml",sMg:250,sMl:5,vol:100},
+  {brand:"ELUCEF Oral Süspansiyon Hazırlamak İçin Kuru Toz 250 mg/5 ml 100 ml",sMg:250,sMl:5,vol:100},
+  {brand:"ENCEF Oral Süspansiyon 250 mg/5 ml 100 ml",sMg:250,sMl:5,vol:100},
+  {brand:"RODİNİR Oral Süspansiyon Hazırlamak İçin Kuru Toz 250 mg/5 ml 100 ml",sMg:250,sMl:5,vol:100},
+  {brand:"TAMCEF Süspansiyon Hazırlamak İçin Kuru Toz 250 mg/5 ml 100 ml",sMg:250,sMl:5,vol:100}],
+ aciklama:">6 ay kullanım önerisi mevcut.",
+ warning:">6 ay kullanım önerisi mevcut."},
+
+// ── SEFİKSİM ─────────────────────────────────────────────
+{key:"sefiksi",label:"Sefiksim (İYE)",sinif:"antibakteriyel",yol:"PO",
+ doseMin:8,doseMax:8,doseRec:8,fixedMg:null,maxDozMg:400,
+ freq:1,freqPer:"günlük",totalDoz:null,olcek:5,suspMl:5,
+ defDur:10,durLabel:"7–14 gün",bRule:"min_kutu",
+ preps:[
+  {brand:"FİXEF Pediatrik Oral Süspansiyon Hazırlamak İçin Kuru Toz 100 mg/5 ml 100 ml",sMg:100,sMl:5,vol:100},
+  {brand:"MOLCEF Oral Süspansiyon Hazırlamak İçin Kuru Toz 100 mg/5 ml 100 ml",sMg:100,sMl:5,vol:100},
+  {brand:"SUPRAX Pediatrik Oral Süspansiyon Hazırlamak İçin Kuru Toz 100 mg/5 ml 100 ml",sMg:100,sMl:5,vol:100},
+  {brand:"ZİMAKS Oral Süspansiyon Hazırlamak İçin Kuru Toz 100 mg/5 ml 100 ml",sMg:100,sMl:5,vol:100}],
+ aciklama:">2 ay kullanım önerisi mevcut.",
+ warning:">2 ay kullanım önerisi mevcut."},
+
+// ── SEFUROKSIM ───────────────────────────────────────────
+{key:"sefuro",label:"Sefuroksim aksetil",sinif:"antibakteriyel",yol:"PO",
+ doseMin:10,doseMax:15,doseRec:12.5,fixedMg:null,maxDozMg:500,
+ freq:2,freqPer:"günlük",totalDoz:null,olcek:5,suspMl:5,
+ defDur:10,durLabel:"7–10 gün",bRule:"sefuro_konc",
+ preps:[
+  {brand:"CEFAKS Oral Süspansiyon Hazırlamak İçin Granül 125 mg/5 ml 100 ml",sMg:125,sMl:5,vol:100},
+  {brand:"CEFAKS Oral Süspansiyon Hazırlamak İçin Granül 250 mg/5 ml 100 ml",sMg:250,sMl:5,vol:100}],
+ aciklama:">3 ay kullanım önerisi mevcut.",
+ warning:">3 ay kullanım önerisi mevcut."},
+
+// ── SETİRİZİN ────────────────────────────────────────────
+{key:"setiri_25",noWeight:true,label:"Setirizin hidroklorür — 2–5 yaş",sinif:"antihistaminik",yol:"PO",
+ doseMin:null,doseMax:null,doseRec:null,fixedMg:2.5,maxDozMg:10,
+ freq:1,freqPer:"günlük",totalDoz:null,olcek:5,suspMl:5,
+ defDur:7,durLabel:"—",bRule:"min_kutu",
+ preps:[
+  {brand:"YENİZİN Şurup 5 mg/5 ml 100 ml",sMg:5,sMl:5,vol:100},
+  {brand:"HİTRİZİN Şurup 1 mg/ml 150 ml",sMg:5,sMl:5,vol:150},
+  {brand:"ALLERSET Şurup 1 mg/ml 200 ml",sMg:5,sMl:5,vol:200},
+  {brand:"CETRYN Şurup 5 mg/5 ml 200 ml",sMg:5,sMl:5,vol:200},
+  {brand:"HİTRİZİN Şurup 1 mg/ml 200 ml",sMg:5,sMl:5,vol:200},
+  {brand:"ZYRTEC Şurup 1 mg/ml 200 ml",sMg:5,sMl:5,vol:200}],
+ aciklama:">2 yaş üzeri kullanım önerisi mevcut. 2–5 yaş sabit doz: 2,5 mg/gün.",
+ warning:">2 yaş üzeri kullanım önerisi mevcut."},
+
+{key:"setiri_611",noWeight:true,label:"Setirizin hidroklorür — 6–11 yaş",sinif:"antihistaminik",yol:"PO",
+ doseMin:null,doseMax:null,doseRec:null,fixedMg:5,maxDozMg:10,
+ freq:1,freqPer:"günlük",totalDoz:null,olcek:5,suspMl:5,
+ defDur:7,durLabel:"—",bRule:"min_kutu",
+ preps:[
+  {brand:"YENİZİN Şurup 5 mg/5 ml 100 ml",sMg:5,sMl:5,vol:100},
+  {brand:"HİTRİZİN Şurup 1 mg/ml 150 ml",sMg:5,sMl:5,vol:150},
+  {brand:"ALLERSET Şurup 1 mg/ml 200 ml",sMg:5,sMl:5,vol:200},
+  {brand:"CETRYN Şurup 5 mg/5 ml 200 ml",sMg:5,sMl:5,vol:200},
+  {brand:"HİTRİZİN Şurup 1 mg/ml 200 ml",sMg:5,sMl:5,vol:200},
+  {brand:"ZYRTEC Şurup 1 mg/ml 200 ml",sMg:5,sMl:5,vol:200}],
+ aciklama:"6–11 yaş sabit doz: 5 mg/gün (1 ölçek).",
+ warning:">2 yaş üzeri kullanım önerisi mevcut."},
+
+{key:"setiri_1217",noWeight:true,label:"Setirizin hidroklorür — 12–17 yaş",sinif:"antihistaminik",yol:"PO",
+ doseMin:null,doseMax:null,doseRec:null,fixedMg:10,maxDozMg:10,
+ freq:1,freqPer:"günlük",totalDoz:null,olcek:5,suspMl:5,
+ defDur:7,durLabel:"—",bRule:"min_kutu",
+ preps:[
+  {brand:"YENİZİN Şurup 5 mg/5 ml 100 ml",sMg:5,sMl:5,vol:100},
+  {brand:"HİTRİZİN Şurup 1 mg/ml 150 ml",sMg:5,sMl:5,vol:150},
+  {brand:"ALLERSET Şurup 1 mg/ml 200 ml",sMg:5,sMl:5,vol:200},
+  {brand:"CETRYN Şurup 5 mg/5 ml 200 ml",sMg:5,sMl:5,vol:200},
+  {brand:"HİTRİZİN Şurup 1 mg/ml 200 ml",sMg:5,sMl:5,vol:200},
+  {brand:"ZYRTEC Şurup 1 mg/ml 200 ml",sMg:5,sMl:5,vol:200}],
+ aciklama:"12–17 yaş sabit doz: 10 mg/gün (2 ölçek).",
+ warning:">2 yaş üzeri kullanım önerisi mevcut."},
+
+// ── TMP-SMX ──────────────────────────────────────────────
+{key:"tmp_sistit",label:"TMP-SMX — Sistit",sinif:"antibakteriyel",yol:"PO",
+ doseMin:null,doseMax:null,doseRec:null,fixedMg:10,maxDozMg:160,
+ freq:2,freqPer:"günlük",totalDoz:null,olcek:5,suspMl:5,
+ defDur:7,durLabel:"3 gün",bRule:"min_kutu",
+ preps:[
+  {brand:"BACTRİM Süspansiyon 200 mg + 40 mg/5 ml 100 ml",sMg:40,sMl:5,vol:100},
+  {brand:"TRİMOKS Pediyatrik Süspansiyon 200 mg + 40 mg/5 ml 100 ml",sMg:40,sMl:5,vol:100}],
+ aciklama:">2 ay üzeri kullanım önerisi. (TMP bileşeni bazında hesaplanır: 40 mg/5 ml = 8 mg/ml TMP)",
+ warning:">2 ay üzeri kullanım önerisi mevcuttur."},
+
+{key:"tmp_dyde",label:"TMP-SMX — DYDE",sinif:"antibakteriyel",yol:"PO",
+ doseMin:null,doseMax:null,doseRec:null,fixedMg:10,maxDozMg:320,
+ freq:2,freqPer:"günlük",totalDoz:null,olcek:5,suspMl:5,
+ defDur:7,durLabel:"7–10 gün",bRule:"min_kutu",
+ preps:[
+  {brand:"BACTRİM Süspansiyon 200 mg + 40 mg/5 ml 100 ml",sMg:40,sMl:5,vol:100},
+  {brand:"TRİMOKS Pediyatrik Süspansiyon 200 mg + 40 mg/5 ml 100 ml",sMg:40,sMl:5,vol:100}],
+ aciklama:">2 ay üzeri kullanım önerisi mevcuttur.",
+ warning:">2 ay üzeri kullanım önerisi mevcuttur."}
+];
+
+// ════════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════════
+let S={drug:null,wt:null,dur:5,isLH:false,is2hafta:false,view:'rec',rounded:false,rndOl:null,selPrep:null,res:null};
+let modalPrep=null; // reçete modalında gösterilen prep
+
+// ════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════
+window.onload=()=>{
+  const sel=document.getElementById('dsel');
+  DB.forEach(d=>{const o=document.createElement('option');o.value=d.key;o.textContent=d.label;sel.appendChild(o);});
+  selDur(5);
+};
+
+// ════════════════════════════════════════════════════════
+// FORM
+// ════════════════════════════════════════════════════════
+function onDrug(){
+  const k=document.getElementById('dsel').value;
+  S.drug=k?DB.find(d=>d.key===k):null;
+  S.res=null;S.rounded=false;S.selPrep=null;
+  document.getElementById('rb').style.display='none';
+  const h=document.getElementById('thint');
+  const wtInput=document.getElementById('wt');
+  const wtCat=document.getElementById('wtcat');
+  if(S.drug){
+    h.style.display='block';
+    document.getElementById('hdur').textContent=S.drug.durLabel||'—';
+    if(S.drug.isDefLH) selDur('LH');
+    else if(S.drug.isDefHafta) selDur('2hafta');
+    else if(S.drug.defDur) selDur(S.drug.defDur);
+    // Sabit doz: ağırlık kutusu kapat
+    const noWeight=!!S.drug.noWeight;
+    wtInput.disabled=noWeight;
+    wtInput.placeholder=noWeight?'Bu ilaç için gerekli değil':'kg';
+    wtInput.style.background=noWeight?'#f7fafc':'';
+    wtInput.style.color=noWeight?'#a0aec0':'';
+    wtInput.style.cursor=noWeight?'not-allowed':'';
+    if(!S.wt) wtCat.textContent='— kg';
+    wtCat.style.opacity=noWeight?'0.4':'1';
+  } else {
+    h.style.display='none';
+    wtInput.disabled=false;
+    wtInput.placeholder='kg';
+    wtInput.style.background='';
+    wtInput.style.color='';
+    wtInput.style.cursor='';
+    wtCat.textContent='— kg';
+    wtCat.style.opacity='1';
+  }
+}
+function onWt(){
+  const v=parseFloat(document.getElementById('wt').value);
+  S.wt=isNaN(v)||v<=0?null:v;
+  const el=document.getElementById('wtcat');
+  if(S.wt){
+    const c=S.wt<5?'<5 kg':S.wt<10?'5–10 kg':S.wt<20?'10–20 kg':S.wt<40?'20–40 kg':'>40 kg';
+    el.textContent=S.wt+' kg ('+c+')';
+  } else el.textContent='— kg';
+}
+function selDur(v){
+  S.isLH=v==='LH';
+  S.is2hafta=v==='2hafta';
+  S.dur=S.isLH||S.is2hafta?0:v;
+  document.querySelectorAll('.chip').forEach(c=>{
+    c.classList.remove('active');
+    const txt=c.textContent.trim();
+    if(v==='LH'&&txt==='LH') c.classList.add('active');
+    else if(v==='2hafta'&&txt==='2 haftada 1') c.classList.add('active');
+    else if(typeof v==='number'&&parseInt(txt)===v&&!txt.includes('hafta')&&txt!=='LH') c.classList.add('active');
+  });
+}
+
+// ════════════════════════════════════════════════════════
+// ENGINE
+// ════════════════════════════════════════════════════════
+function getMg(d,wt,which){
+  if(d.fixedMg!=null) return d.fixedMg;
+  if(d.isAzitro) return null;
+  const r=which==='min'?d.doseMin:which==='max'?d.doseMax:d.doseRec;
+  if(r==null) return null;
+  let mg=r*wt;
+  if(d.maxDozMg&&mg>d.maxDozMg) mg=d.maxDozMg;
+  return Math.round(mg*100)/100;
+}
+function mgToMl(mg,sMg,sMl){return mg/(sMg/sMl);}
+function mlToOl(ml,olcek){return ml/olcek;}
+function rndOl05(raw){
+  const base=Math.floor(raw),f=raw-base;
+  let r=f<0.25?base:f<0.75?base+0.5:base+1;
+  return{r,isBound:Math.abs(f-0.25)<0.015||Math.abs(f-0.75)<0.015};
+}
+function needsRnd(ol){return Math.abs(ol-Math.round(ol*2)/2)>0.005;}
+
+function getTargetConc(d,recMg,wt){
+  // N kuralına göre hedef konsantrasyonu döndür (şişe hacmi olmadan)
+  const rule=d.bRule;
+  if(rule==='amoksklav_std_konc'||rule==='amoksklav_std'){
+    return wt<=10?200:wt<30?400:600;
+  } else if(rule==='amoksklav_yuk'){
+    return 600;
+  } else if(rule==='ibupro_konc'){
+    return wt<20?100:200;
+  } else if(rule==='para_konc'){
+    return wt<20?120:250;
+  } else if(rule==='klari_konc'){
+    return wt<33.3?125:250;
+  } else if(rule==='sefalek_gas_konc'){
+    return wt<25?250:500;
+  } else if(rule==='sefalek_dyde_konc'){
+    return wt<20?250:500;
+  } else if(rule==='sefdinir_konc'){
+    return wt<18?125:250;
+  } else if(rule==='sefuro_konc'){
+    return wt<20?125:250;
+  } else if(rule==='konc_opt'){
+    // 2-10 ml/doz hedefine göre en iyi konc
+    const byC={};
+    d.preps.forEach(p=>{if(!byC[p.sMg])byC[p.sMg]=p.sMg;});
+    let bestC=d.preps[0].sMg,bestScore=Infinity;
+    Object.keys(byC).forEach(cs=>{
+      const c=parseFloat(cs);
+      const ml=(recMg/c)*d.suspMl;
+      const s=ml<1?100:ml<=10?Math.abs(ml-5):50+ml;
+      if(s<bestScore){bestScore=s;bestC=c;}
+    });
+    return bestC;
+  }
+  // Varsayılan: ilk prepin konsantrasyonu
+  return d.preps[0].sMg;
+}
+function autoSelPrep(d,totalMl,recMg,wt){
+  const rule=d.bRule;
+  let cands=d.preps.slice();
+  if(rule==='konc_opt'){
+    // 2–10 ml/doz hedefi → en iyi konc bul
+    const byC={};
+    d.preps.forEach(p=>{if(!byC[p.sMg])byC[p.sMg]=[];byC[p.sMg].push(p);});
+    let bC=null,bS=Infinity;
+    Object.keys(byC).forEach(cs=>{
+      const c=parseFloat(cs);
+      const ml=(recMg/c)*d.suspMl;
+      const s=ml<1?100:ml<=10?Math.abs(ml-5):50+ml;
+      if(s<bS){bS=s;bC=c;}
+    });
+    cands=(byC[bC]||d.preps).slice();
+    // en az kutu şişeyi seç
+    if(totalMl!=null){
+      const vols=[...new Set(cands.map(p=>p.vol))].sort((a,b)=>a-b);
+      const bv=vols.find(v=>v>=totalMl)||vols[vols.length-1];
+      const f=cands.filter(p=>p.vol===bv);
+      if(f.length)cands=f;
+    }
+  } else if(rule==='amoksklav_std'){
+    const tC=wt<=10?200:wt<30?400:600;
+    cands=d.preps.filter(p=>p.sMg===tC);
+    if(!cands.length)cands=d.preps.slice();
+    if(totalMl!=null){
+      const vols=[...new Set(cands.map(p=>p.vol))].sort((a,b)=>a-b);
+      const bv=vols.find(v=>v>=totalMl)||vols[vols.length-1];
+      const f=cands.filter(p=>p.vol===bv);
+      if(f.length)cands=f;
+    }
+  } else if(rule==='ibupro_konc'){
+    // 20 kg altına 100 mg/5ml, 20 kg+ 200 mg/5ml
+    const tC=wt<20?100:200;
+    cands=d.preps.filter(p=>p.sMg===tC);
+    if(!cands.length)cands=d.preps.slice();
+    if(totalMl!=null){
+      const vols=[...new Set(cands.map(p=>p.vol))].sort((a,b)=>a-b);
+      const bv=vols.find(v=>v>=totalMl)||vols[vols.length-1];
+      const f=cands.filter(p=>p.vol===bv);if(f.length)cands=f;
+    }
+  } else if(rule==='para_konc'){
+    // 20 kg altına 120 mg/5ml, 20 kg+ 250 mg/5ml
+    const tC=wt<20?120:250;
+    cands=d.preps.filter(p=>p.sMg===tC);
+    if(!cands.length)cands=d.preps.slice();
+    if(totalMl!=null){
+      const vols=[...new Set(cands.map(p=>p.vol))].sort((a,b)=>a-b);
+      const bv=vols.find(v=>v>=totalMl)||vols[vols.length-1];
+      const f=cands.filter(p=>p.vol===bv);if(f.length)cands=f;
+    }
+  } else if(rule==='klari_konc'){
+    // 33.3 kg altına 125 mg/5ml, 33.3 kg+ 250 mg/5ml
+    const tC=wt<33.3?125:250;
+    cands=d.preps.filter(p=>p.sMg===tC);
+    if(!cands.length)cands=d.preps.slice();
+    if(totalMl!=null){
+      const vols=[...new Set(cands.map(p=>p.vol))].sort((a,b)=>a-b);
+      const bv=vols.find(v=>v>=totalMl)||vols[vols.length-1];
+      const f=cands.filter(p=>p.vol===bv);if(f.length)cands=f;
+    }
+  } else if(rule==='sefalek_gas_konc'){
+    // 25 kg altına 250 mg/5ml, 25 kg+ 500 mg/5ml
+    const tC=wt<25?250:500;
+    cands=d.preps.filter(p=>p.sMg===tC);
+    if(!cands.length)cands=d.preps.slice();
+  } else if(rule==='sefalek_dyde_konc'){
+    // 20 kg altına 250 mg/5ml, 20 kg+ 500 mg/5ml
+    const tC=wt<20?250:500;
+    cands=d.preps.filter(p=>p.sMg===tC);
+    if(!cands.length)cands=d.preps.slice();
+  } else if(rule==='sefdinir_konc'){
+    // 18 kg altına 125 mg/5ml, 18 kg+ 250 mg/5ml
+    const tC=wt<18?125:250;
+    cands=d.preps.filter(p=>p.sMg===tC);
+    if(!cands.length)cands=d.preps.slice();
+  } else if(rule==='sefuro_konc'){
+    // 20 kg altına 125 mg/5ml, 20 kg+ 250 mg/5ml
+    const tC=wt<20?125:250;
+    cands=d.preps.filter(p=>p.sMg===tC);
+    if(!cands.length)cands=d.preps.slice();
+  } else if(rule==='amoksklav_std_konc'){
+    // <=10 kg: 200mg, 10-30kg: 400mg, >=30kg: 600mg
+    const tC=wt<=10?200:wt<30?400:600;
+    cands=d.preps.filter(p=>p.sMg===tC);
+    if(!cands.length)cands=d.preps.slice();
+    if(totalMl!=null){
+      const vols=[...new Set(cands.map(p=>p.vol))].sort((a,b)=>a-b);
+      const bv=vols.find(v=>v>=totalMl)||vols[vols.length-1];
+      const f=cands.filter(p=>p.vol===bv);if(f.length)cands=f;
+    }
+  } else if(rule==='amoksklav_yuk'){
+    cands=d.preps.filter(p=>p.sMg===600);
+    if(totalMl!=null){
+      const bv=totalMl<=100?100:150;
+      const f=cands.filter(p=>p.vol===bv);
+      if(f.length)cands=f;
+    }
+  } else if(rule==='azitro'){
+    if(totalMl!=null){
+      const bv=totalMl<=15?15:30;
+      const f=d.preps.filter(p=>p.vol===bv);
+      cands=f.length?f:d.preps.slice();
+    }
+  } else {
+    // min_kutu: en az kutu
+    if(totalMl!=null){
+      cands.sort((a,b)=>{
+        const ba=Math.ceil(totalMl/a.vol),bb=Math.ceil(totalMl/b.vol);
+        return ba!==bb?ba-bb:b.vol-a.vol;
+      });
+    }
+  }
+  return cands.length?cands[0]:d.preps[0];
+}
+
+function azCalc(wt,sMg,sMl,maxDoz){
+  const mpml=sMg/sMl;
+  const d1mg=Math.min(10*wt,maxDoz||500);
+  const d2mg=Math.min(5*wt,(maxDoz||500)/2);
+  return{d1Ml:d1mg/mpml,d2Ml:d2mg/mpml,total:d1mg/mpml+d2mg/mpml*4};
+}
+
+function getTotalMl(d,ml,dur){
+  if(S.isLH) return null;
+  if(d.totalDoz) return d.totalDoz*ml;
+  if(d.freq) return dur*d.freq*ml;
+  return null;
+}
+
+function calc(){
+  if(!S.drug){toast('⚠️ Lütfen ilaç seçin');return;}
+  const d=S.drug;
+  const needWt=!d.noWeight&&(d.doseMin!=null||d.doseMax!=null||d.doseRec!=null||(d.fixedMg==null&&!d.isAzitro));
+  if(d.isAzitro&&!S.wt){toast('⚠️ Lütfen ağırlık girin');return;}
+  if(needWt&&!S.wt){toast('⚠️ Lütfen ağırlık girin');return;}
+  S.rounded=false;S.rndOl=null;S.view='rec';
+
+  if(d.isAzitro){
+    const p=d.preps[0];
+    const az=azCalc(S.wt,p.sMg,d.suspMl,d.maxDozMg);
+    const totalMl=S.isLH?null:az.total;
+    const autoPrep=autoSelPrep(d,totalMl,az.d1Ml,S.wt||0);
+    S.selPrep=null;
+    S.res={isAzitro:true,az,totalMl,prep:autoPrep,autoPrep:autoPrep,durStr:S.isLH?'LH':S.is2hafta?'2 haftada bir':'5 gün'};
+    renderRes();return;
+  }
+
+  const recMg=getMg(d,S.wt,'rec');
+  const minMg=d.doseMin!=null?getMg(d,S.wt,'min'):recMg;
+  const maxMg=d.doseMax!=null?getMg(d,S.wt,'max'):recMg;
+  const hasMM=d.doseMin!=null&&d.doseMax!=null&&(d.doseMin!==d.doseMax||d.doseRec!==d.doseMin);
+
+  // Önce hedef konsantrasyonu belirle (N kuralına göre), o konc üzerinden totalMl0 hesapla
+  const targetConc=getTargetConc(d,recMg,S.wt||0);
+  const recMl0=mgToMl(recMg,targetConc,d.suspMl);
+  const totalMl0=getTotalMl(d,recMl0,S.dur);
+  // N sütunu kuralına göre otomatik prep seç (hesap için kullan, hero'da gösterme)
+  const prep=autoSelPrep(d,totalMl0,recMg,S.wt||0);
+  S.selPrep=null;
+  const rMl=mg=>mgToMl(mg,prep.sMg,d.suspMl);
+  const recMl=rMl(recMg),minMl=rMl(minMg),maxMl=rMl(maxMg);
+  const recOl=mlToOl(recMl,d.olcek),minOl=mlToOl(minMl,d.olcek),maxOl=mlToOl(maxMl,d.olcek);
+  const totalMl=getTotalMl(d,recMl,S.dur);
+
+  S.res={recMg,minMg,maxMg,recMl,minMl,maxMl,recOl,minOl,maxOl,
+    totalMl,boxes:totalMl?Math.ceil(totalMl/prep.vol):null,
+    prep,autoPrep:prep,hasMM,durStr:S.isLH?'LH':S.is2hafta?'2 haftada bir':S.dur+' gün'};
+  renderRes();
+}
+
+// ════════════════════════════════════════════════════════
+// RENDER
+// ════════════════════════════════════════════════════════
+function renderRes(){
+  const d=S.drug,r=S.res;if(!r)return;
+  const selPrep=S.selPrep; // kullanıcı seçimi (null = seçilmedi)
+  const calcPrep=r.autoPrep||r.prep||S.drug.preps[0]; // hesap prepi
+  const prep=selPrep||calcPrep; // hero box için
+  document.getElementById('togWrap').style.display=(r.hasMM&&!r.isAzitro)?'block':'none';
+  ['rec','min','max'].forEach(v=>document.getElementById('dtb-'+v).classList.toggle('active',v===S.view));
+
+  let vMg,vMl,vOl;
+  if(r.isAzitro){vMg=null;vMl=r.az.d1Ml;vOl=vMl/d.olcek;}
+  else if(S.view==='min'){vMg=r.minMg;vMl=r.minMl;vOl=r.minOl;}
+  else if(S.view==='max'){vMg=r.maxMg;vMl=r.maxMl;vOl=r.maxOl;}
+  else{vMg=r.recMg;vMl=r.recMl;vOl=r.recOl;}
+
+  const effOl=(S.rounded&&S.view==='rec'&&!r.isAzitro)?S.rndOl:vOl;
+  const effMl=effOl*d.olcek;
+  const effTot=r.isAzitro?r.totalMl:getTotalMl(d,effMl,S.dur);
+
+  // Hero
+  const viewLbl=S.view==='rec'?'ÖNERİLEN/VARSAYILAN DOZ':S.view==='min'?'MİN DOZ':'MAX DOZ';
+  const fs=d.freq?(d.freq===1?'günde 1 kez':'günde '+d.freq+' kez'):d.freqPer;
+  const dispPrep=selPrep||calcPrep;
+  // effBox: seçili prep varsa onun hacmi, yoksa calcPrep hacmi
+  const effBox=S.isLH?(d.isDefLH?1:null):(effTot&&dispPrep)?Math.ceil(effTot/dispPrep.vol):null;
+
+  // Satır 1: etken madde adı (müstahzar seçilince marka adı)
+  document.getElementById('heroLbl').textContent=viewLbl;
+  document.getElementById('heroDrug').textContent=
+    selPrep ? brandTitle(selPrep.brand) : shortName(d.label);
+
+  // Satır 2 (meta): konsantrasyon — şişe hacmi (calcPrep varsa)
+  const meta2El=document.getElementById('heroMeta2');
+  if(dispPrep){
+    meta2El.textContent=dispPrep.sMg+' mg/'+dispPrep.sMl+' ml  —  '+dispPrep.vol+' ml şişe';
+    meta2El.style.display='block';
+  } else {
+    meta2El.style.display='none';
+  }
+
+  // Hero kutusu: PO — günde N kez — X ölçek — Y kutu — Z gün
+  const boxEl=document.getElementById('heroBox');
+  const subEl=document.getElementById('heroSub');
+
+  if(!calcPrep){
+    boxEl.style.display='none'; boxEl.textContent='';
+    subEl.style.display='none'; subEl.textContent='';
+  } else if(r.isAzitro){
+    const ol1=fmtFrac(r.az.d1Ml/d.olcek), ol2=fmtFrac(r.az.d2Ml/d.olcek);
+    const boxStr=effBox?'  —  '+numTR(effBox)+' kutu':'';
+    boxEl.style.display='inline-block';
+    boxEl.textContent=d.yol+'  —  '+fs+'  —  1. gün: '+ol1+' ölçek  |  2–5. gün: '+ol2+' ölçek'+boxStr+'  —  '+r.durStr;
+    subEl.style.display='block';
+    subEl.textContent='1. gün: '+fmt(r.az.d1Ml)+' ml  |  2–5. gün: '+fmt(r.az.d2Ml)+' ml';
+  } else {
+    const olStr=fmtO(effOl);
+    const boxStr=effBox?'  —  '+numTR(effBox)+' kutu':'';
+    boxEl.style.display='inline-block';
+    // Format: PO — günde 2 kez — 1.1 ölçek — 7 gün — 2 (iki) kutu
+    boxEl.textContent=d.yol+'  —  '+fs+'  —  '+olStr+' ölçek  —  '+r.durStr+(effBox?'  —  '+numTR(effBox)+' kutu':'');
+    // Alt satır: 2×5.63 ml (1.1 ölçek)
+    const doseCount=d.freq||1;
+    subEl.style.display='block';
+    subEl.textContent=doseCount+'×'+fmt(effMl)+' ml  ('+olStr+' ölçek)';
+  }
+
+  // Dose cards
+  const dg=document.getElementById('dgrid');
+  if(r.isAzitro){
+    dg.innerHTML=`
+    <div class="dc dc-r dca" style="grid-column:span 1">
+      <div class="dclbl">1. Gün</div>
+      <div class="dcv">${fmt(r.az.d1Ml)}<span class="dcu"> ml</span></div>
+      <div class="dcs">${fmtO(r.az.d1Ml/d.olcek)} ölçek — 10 mg/kg</div>
+      <div class="dcbg">Yükleme dozu</div>
+    </div>
+    <div class="dc dc-n dca" style="grid-column:span 2">
+      <div class="dclbl">2.–5. Günler</div>
+      <div class="dcv">${fmt(r.az.d2Ml)}<span class="dcu"> ml</span></div>
+      <div class="dcs">${fmtO(r.az.d2Ml/d.olcek)} ölçek/gün — 5 mg/kg</div>
+    </div>`;
+  } else {
+    const cards=[
+      {cls:'dc-r',lbl:'Önerilen/Varsayılan',mg:r.recMg,ml:r.recMl,ol:r.recOl,badge:'',v:'rec'},
+      {cls:'dc-n',lbl:'Min Doz',mg:r.minMg,ml:r.minMl,ol:r.minOl,badge:null,v:'min'},
+      {cls:'dc-x',lbl:'Max Doz',mg:r.maxMg,ml:r.maxMl,ol:r.maxOl,badge:null,v:'max'}
+    ];
+    const show=r.hasMM?cards:[cards[0]];
+    dg.innerHTML=show.map(c=>{
+      const eol=(S.rounded&&c.v==='rec')?S.rndOl:c.ol;
+      const eml=eol*d.olcek;
+      const isAct=(c.v===S.view)||!r.hasMM;
+      return`<div class="dc ${c.cls} ${isAct?'dca':''}"
+        style="${!r.hasMM?'grid-column:span 3':''}"
+        onclick="swV('${c.v}')">
+        <div class="dclbl">${c.lbl}</div>
+        <div class="dcv">${fmt(c.mg)}<span class="dcu"> mg</span></div>
+        <div class="dcs">${fmt(eml)} ml — ${fmtO(eol)} ölçek</div>
+        ${S.wt?'<div class="dcs">'+fmt(c.mg/S.wt)+' mg/kg</div>':''}
+        ${c.badge?'<div class="dcbg">'+c.badge+'</div>':''}
+      </div>`;
+    }).join('');
+  }
+
+  // Rounding
+  const rb=document.getElementById('rb');
+  if(!S.isLH&&!S.rounded&&!r.isAzitro&&S.view==='rec'&&needsRnd(r.recOl)){
+    document.getElementById('rawOl').textContent=fmtO(r.recOl);
+    rb.style.display='block';
+  } else rb.style.display='none';
+
+  document.getElementById('anote').style.display=r.isAzitro?'block':'none';
+
+  // Info
+  const ig=document.getElementById('igrid');
+  const info=[];
+  if(!S.isLH&&effTot!=null)info.push({l:'Toplam Hacim',v:fmt(effTot)+' ml',s:r.durStr});
+  if(!S.isLH&&effBox!=null&&dispPrep)info.push({l:'Kutu Adedi',v:effBox+' kutu',s:dispPrep.vol+' ml şişe'});
+  if(prep)info.push({l:'Konsantrasyon',v:prep.sMg+' mg/'+prep.sMl+'ml',s:''});
+  if(S.wt&&!r.isAzitro)info.push({l:'Doz/kg (önerilen/varsayılan)',v:fmt(r.recMg/S.wt)+' mg/kg',s:(d.freq||'')+'×1/gün'});
+  ig.innerHTML=info.map(i=>`<div class="ii"><div class="iil">${i.l}</div><div class="iiv">${i.v}</div><div class="iis">${i.s}</div></div>`).join('');
+
+  const db=document.getElementById('dbox');
+  if(d.aciklama){db.textContent='📋 '+d.aciklama;db.style.display='block';}else db.style.display='none';
+  const wb=document.getElementById('wbox');
+  if(d.warning){document.getElementById('wtxt').textContent='DİKKAT / UYARI: '+d.warning;wb.classList.add('show');}else wb.classList.remove('show');
+
+  // Müstahzar listesi — konsentrasyon gruplarına göre
+  renderPreps(d,calcPrep,selPrep,effTot);
+
+  document.getElementById('emptyState').style.display='none';
+  const rp=document.getElementById('rp');
+  rp.style.display='block';
+  rp.classList.add('vis');
+}
+
+function renderPreps(d,calcPrep,selPrep,effTot){
+  const sec=document.getElementById('prepSection');
+  // Önerilen konsantrasyon ve şişe hacmine göre filtrele
+  const optSMg=calcPrep?calcPrep.sMg:null;
+  const optVol=calcPrep?calcPrep.vol:null;
+  // calcPrep ile aynı konsantrasyon+şişe hacmindeki tüm markalar
+  const filtered=calcPrep
+    ? d.preps.filter(p=>p.sMg===optSMg&&p.vol===optVol)
+    : d.preps.slice();
+  const sorted=filtered.sort((a,b)=>a.brand.localeCompare(b.brand,'tr'));
+  const olcekHacmi=d.olcek;
+  let html='<div class="prep-sec-title">'+
+    (calcPrep?optSMg+' mg/'+calcPrep.sMl+' ml — '+optVol+' ml şişe':'Tüm Müstahzarlar')+
+    '</div>';
+  sorted.forEach(p=>{
+    const isSel=selPrep&&selPrep.brand===p.brand&&selPrep.vol===p.vol&&selPrep.sMg===p.sMg;
+    const prepIdx=d.preps.indexOf(p);
+    html+=`<div class="prep-item ${isSel?'sel':''}" onclick="clickPrep(${prepIdx})">
+      <div class="pi-left">
+        <div class="pi-brand">${p.brand.split(' ')[0]}</div>
+        <div class="pi-detail">${p.brand.replace(p.brand.split(' ')[0]+' ','')}</div>
+      </div>
+      <div class="pi-right">
+        ${isSel?'<span class="pi-sel">✓</span>':''}
+      </div>
+    </div>`;
+  });
+  // Diğer konsantrasyon/hacimler için küçük link
+  const others=d.preps.filter(p=>!(p.sMg===optSMg&&p.vol===optVol));
+  if(selPrep&&others.length>0){
+    html+='<div class="prep-others-btn" onclick="toggleOtherPreps(this,'+JSON.stringify(d.preps.map((_,i)=>i)).replace(/"/g,'')+')" style="font-size:11px;color:var(--t3);cursor:pointer;padding:6px 2px;text-decoration:underline">Diğer konsantrasyon/hacimler ('+others.length+')</div>';
+    html+='<div class="prep-others" style="display:none"></div>';
+  }
+  sec.innerHTML=html;
+}
+
+function toggleOtherPreps(btn,idxList){
+  const d=S.drug; if(!d) return;
+  const el=btn.nextElementSibling;
+  if(el.style.display==='none'){
+    const selPrep=S.selPrep;
+    const optSMg=selPrep?selPrep.sMg:null;
+    const optVol=selPrep?selPrep.vol:null;
+    const cp=S.res&&S.res.autoPrep;
+    const others=d.preps.filter(p=>!(p.sMg===(cp?cp.sMg:null)&&p.vol===(cp?cp.vol:null)));
+    const sorted=others.sort((a,b)=>a.brand.localeCompare(b.brand,'tr'));
+    let html='';
+    sorted.forEach(p=>{
+      const prepIdx=d.preps.indexOf(p);
+      html+=`<div class="prep-item" onclick="clickPrep(${prepIdx})" style="opacity:.75">
+        <div class="pi-left">
+          <div class="pi-brand">${p.brand.split(' ')[0]}</div>
+          <div class="pi-detail">${p.sMg} mg/${p.sMl} ml — ${p.vol} ml şişe</div>
+        </div>
+      </div>`;
+    });
+    el.innerHTML=html;
+    el.style.display='block';
+    btn.textContent='Diğerlerini gizle';
+  } else {
+    el.style.display='none';
+    const others=d.preps.filter(p=>!(p.sMg===S.selPrep?.sMg&&p.vol===S.selPrep?.vol));
+    btn.textContent='Diğer konsantrasyon/hacimler ('+others.length+')';
+  }
+}
+
+
+// ════════════════════════════════════════════════════════
+// MÜSTAHZARA TIKLAMA → REÇETE MODAL
+// ════════════════════════════════════════════════════════
+function clickPrep(idx){
+  const d=S.drug,r=S.res;
+  if(!d||!r) return;
+  const prep=d.preps[idx];
+  S.selPrep=prep;
+
+  // Hesapları bu prep için güncelle
+  if(!r.isAzitro){
+    const rMl=mg=>mgToMl(mg,prep.sMg,d.suspMl);
+    const recMl=rMl(r.recMg),minMl=rMl(r.minMg),maxMl=rMl(r.maxMg);
+    const totalMl=getTotalMl(d,recMl,S.dur);
+    S.res={...r,recMl,minMl,maxMl,
+      recOl:mlToOl(recMl,d.olcek),minOl:mlToOl(minMl,d.olcek),maxOl:mlToOl(maxMl,d.olcek),
+      totalMl,boxes:totalMl?Math.ceil(totalMl/prep.vol):null,prep};
+    S.rounded=false;
+  }
+
+  // Hero kutusunu güncelle
+  renderRes();
+}
+
+function showRxModal(){
+  const prep=S.selPrep||(S.drug?S.drug.preps[0]:null);
+  if(!prep){toast('⚠️ Önce hesaplama yapın');return;}
+  openRxModal(prep);
+}
+function openRxModal(prep){
+  const d=S.drug,r=S.res;
+  modalPrep=prep;
+
+  const effOl=S.rounded?S.rndOl:r.isAzitro?r.az.d1Ml/d.olcek:r.recOl;
+  const effMl=r.isAzitro?r.az.d1Ml:effOl*d.olcek;
+  const recMg=r.isAzitro?Math.min(10*S.wt,d.maxDozMg||500):r.recMg;
+  const effTot=r.isAzitro?r.totalMl:getTotalMl(d,effMl,S.dur);
+  const boxes=S.isLH?(d.isDefLH?1:null):effTot?Math.ceil(effTot/prep.vol):null;
+
+  // Modal başlık
+  document.getElementById('mHead').textContent=prep.brand.split(' ')[0];
+  document.getElementById('mSub').textContent=prep.sMg+' mg/'+prep.sMl+'ml — '+prep.vol+' ml şişe';
+
+  const today=new Date().toLocaleDateString('tr-TR',{day:'2-digit',month:'2-digit',year:'numeric'});
+  const freqStr=d.freq?(d.freq===1?'günde 1 kez':'günde '+d.freq+' kez'):d.freqPer;
+
+  let body=`<div class="rx">
+    <div class="rx-header">
+      <div class="rx-title">Reçete</div>
+      <div class="rx-date">${today}</div>
+    </div>
+    <div class="rx-drug">${d.label}</div>
+    <div class="rx-brand">${prep.brand}</div>
+    <div class="rx-section">`;
+
+  if(r.isAzitro){
+    body+=`<div class="rx-azitro">
+      <strong>Azitromisin 5 günlük özel rejim:</strong>
+      <table>
+        <tr><td>1. Gün</td><td>${fmt(r.az.d1Ml)} ml (${fmtO(r.az.d1Ml/d.olcek)} ölçek) — 1×1</td></tr>
+        <tr><td>2.–5. Gün</td><td>${fmt(r.az.d2Ml)} ml (${fmtO(r.az.d2Ml/d.olcek)} ölçek) — 1×1</td></tr>
+      </table>
+    </div>`;
+  } else {
+    const rows=[
+      {l:'Etken madde',v:d.label},
+      {l:'Müstahzar',v:prep.brand},
+      {l:'Konsantrasyon',v:prep.sMg+' mg/'+prep.sMl+'ml'},
+      {l:'Doz (önerilen/varsayılan)',v:fmt(recMg)+' mg'},
+      {l:'Hacim / Ölçek',v:fmt(effMl)+' ml ('+fmtO(effOl)+' ölçek)',hi:true},
+      {l:'Sıklık',v:freqStr},
+      {l:'Süre',v:r.durStr},
+    ];
+    if(boxes) rows.push({l:'Kutu adedi',v:boxes+' kutu ('+prep.vol+' ml şişe)',hi:true});
+    if(S.wt) rows.push({l:'Vücut ağırlığı',v:S.wt+' kg'},{l:'mg/kg (önerilen/varsayılan)',v:fmt(recMg/S.wt)+' mg/kg'});
+    body+=rows.map(row=>`<div class="rx-row">
+      <span class="rx-label">${row.l}</span>
+      <span class="rx-value${row.hi?' hi':''}">${row.v}</span>
+    </div>`).join('');
+  }
+
+  body+='</div>';
+  if(d.warning) body+=`<div class="rx-warn">⚠️ ${d.warning}</div>`;
+  body+='</div>';
+
+  document.getElementById('mBody').innerHTML=body;
+  document.getElementById('rxModal').classList.add('open');
+
+  // Sonrasında renderRes çağır (kutu adedi güncellensin)
+  renderRes();
+}
+
+function closeModal(e){
+  if(e&&e.target!==document.getElementById('rxModal')&&e.target.closest('.modal')) return;
+  document.getElementById('rxModal').classList.remove('open');
+}
+
+function copyModalRx(){
+  const d=S.drug,r=S.res;
+  const prep=modalPrep||S.selPrep||r.prep;
+  if(!d||!r||!prep) return;
+
+  const effOl=S.rounded?S.rndOl:r.isAzitro?r.az.d1Ml/d.olcek:r.recOl;
+  const effMl=r.isAzitro?r.az.d1Ml:effOl*d.olcek;
+  const recMg=r.isAzitro?Math.min(10*S.wt,d.maxDozMg||500):r.recMg;
+  const effTot=r.isAzitro?r.totalMl:getTotalMl(d,effMl,S.dur);
+  const boxes=S.isLH?(d.isDefLH?1:null):effTot?Math.ceil(effTot/prep.vol):null;
+  const today=new Date().toLocaleDateString('tr-TR');
+
+  let txt=`── REÇETE ── ${today}\n`;
+  txt+=`İlaç: ${d.label}\n`;
+  txt+=`Müstahzar: ${prep.brand}\n`;
+  txt+=`Konsantrasyon: ${prep.sMg} mg/${prep.sMl}ml\n`;
+  if(r.isAzitro){
+    txt+=`REJİM:\n`;
+    txt+=`  1. Gün: ${fmt(r.az.d1Ml)} ml (${fmtO(r.az.d1Ml/d.olcek)} ölçek) — 1×1\n`;
+    txt+=`  2.–5. Günler: ${fmt(r.az.d2Ml)} ml (${fmtO(r.az.d2Ml/d.olcek)} ölçek) — 1×1\n`;
+  } else {
+    txt+=`Doz: ${fmt(recMg)} mg\n`;
+    txt+=`Hacim: ${fmt(effMl)} ml (${fmtO(effOl)} ölçek)\n`;
+    txt+=`Sıklık: ${d.freq?d.freq+'×1':d.freqPer}\n`;
+    txt+=`Süre: ${r.durStr}\n`;
+  }
+  if(boxes) txt+=`Kutu: ${boxes} kutu (${prep.vol} ml)\n`;
+  if(S.wt) txt+=`Ağırlık: ${S.wt} kg\n`;
+  if(d.warning) txt+=`UYARI: ${d.warning}\n`;
+
+  navigator.clipboard.writeText(txt.trim()).then(()=>toast('✅ Reçete kopyalandı'));
+}
+
+// ════════════════════════════════════════════════════════
+// INTERACTIONS
+// ════════════════════════════════════════════════════════
+function swV(v){S.view=v;document.getElementById('rb').style.display='none';renderRes();}
+
+function applyRnd(yes){
+  if(yes&&S.res){
+    const{r,isBound}=rndOl05(S.res.recOl);
+    S.rounded=true;S.rndOl=r;
+    if(isBound) toast('ℹ️ 0.25 sınırında yuvarlama — kontrol edin');
+  } else S.rounded=false;
+  document.getElementById('rb').style.display='none';
+  renderRes();
+}
+
+function clrAll(){
+  S={drug:null,wt:null,dur:5,isLH:false,is2hafta:false,view:'rec',rounded:false,rndOl:null,selPrep:null,res:null};
+  document.getElementById('dsel').value='';
+  const wtEl=document.getElementById('wt');
+  wtEl.value='';wtEl.disabled=false;wtEl.placeholder='kg';
+  wtEl.style.background='';wtEl.style.color='';wtEl.style.cursor='';
+  document.getElementById('wtcat').textContent='— kg';
+  document.getElementById('wtcat').style.opacity='1';
+  document.getElementById('thint').style.display='none';
+  document.getElementById('rb').style.display='none';
+  document.getElementById('emptyState').style.display='block';
+  const rp=document.getElementById('rp');
+  rp.classList.remove('vis');rp.style.display='none';
+  selDur(5);
+}
+
+function copyRx(){
+  if(!S.res||!S.drug){toast('⚠️ Önce hesaplama yapın');return;}
+  copyModalRx();
+}
+
+function addFav(){
+  if(!S.drug) return;
+  const favs=JSON.parse(localStorage.getItem('pedi_favs')||'[]');
+  if(!favs.includes(S.drug.label)){favs.push(S.drug.label);localStorage.setItem('pedi_favs',JSON.stringify(favs));toast('⭐ Favorilere eklendi');}
+  else toast('ℹ️ Zaten favorilerde');
+}
+
+// ════════════════════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════════════════════
+function brandTitle(brand){
+  const stopWords=new Set(['oral','süspansiyon','süsp','şurup','granül','toz','için','hazırlamak','kuru','pediatrik','pediyatrik']);
+  const words=brand.split(' ');
+  let result=[];
+  for(let i=0;i<words.length;i++){
+    const w=words[i];
+    const wl=w.toLowerCase().replace(/[^a-zÇĞİÖŞÜçğıöşü]/g,'');
+    if(i>0 && /^\d+([.,]\d+)?(mg|ml|iu)/i.test(w)) break;
+    if(i>0 && stopWords.has(wl)) break;
+    result.push(w);
+  }
+  return result.join(' ').trim()||words[0];
+}
+function shortName(label){
+  let s=label;
+  // Tire ve sonrasını kaldır (yaş aralığı, endikasyon vb)
+  s=s.replace(/\s*[—–-].*$/,'');
+  // Parantez içini kaldır
+  s=s.replace(/\s*\([^)]*\)/g,'');
+  // "standart doz", "yüksek doz", "5 günlük rejim" vb kaldır
+  s=s.replace(/\s*(standart|yüksek)\s*doz/gi,'');
+  s=s.replace(/\s*\d+\s*günlük\s*rejim/gi,'');
+  // Demir için (II) (III) kaldır ama sonrasını koru
+  s=s.replace(/\s*\(II\)\s*/i,' ').replace(/\s*\(III\)\s*/i,' ');
+  s=s.trim().replace(/\s+/g,' ');
+  return s;
+}
+function numTR(n){
+  const words=['','bir','iki','üç','dört','beş','altı','yedi','sekiz','dokuz','on',
+               'on bir','on iki','on üç','on dört','on beş','on altı','on yedi','on sekiz','on dokuz','yirmi'];
+  if(n===null||n===undefined) return '—';
+  const i=Math.round(n);
+  return (i>=1&&i<=20)?i+' ('+words[i]+')':String(i);
+}
+function fmtFrac(v){
+  // Ölçeği kesirli göster: 0.5→½, 1→1, 1.5→1½, 2→2, 2.5→2½
+  if(v==null) return'—';
+  const r=Math.round(v*2)/2; // 0.5 hassasiyetle
+  const whole=Math.floor(r);
+  const frac=r-whole;
+  if(frac===0) return whole===0?'0':String(whole);
+  if(frac===0.5) return whole===0?'½':whole+'½';
+  return fmtO(v);
+}
+function fmt(v){
+  if(v==null)return'—';
+  const r=Math.round(v*100)/100;
+  return r%1===0?r.toString():r.toFixed(2).replace(/0+$/,'').replace(/\.$/,'');
+}
+function fmtO(v){
+  if(v==null)return'—';
+  const r=Math.round(v*10)/10;
+  return r%1===0?r.toString():r.toFixed(1);
+}
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+</script>
+</body>
+</html>
