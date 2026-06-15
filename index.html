@@ -21,6 +21,12 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;font-size:15px}
 
+/* Disclaimer */
+.disclaimer-wrap{max-width:1180px;margin:14px auto 0;padding:0 18px}
+.disclaimer-box{background:#fff7ed;border:1.5px solid #fed7aa;border-radius:12px;padding:12px 16px;box-shadow:var(--sh);font-size:12.5px;color:#7c2d12;line-height:1.55}
+.disclaimer-box strong{display:block;color:#9a3412;font-family:'Syne',sans-serif;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+@media(max-width:768px){.disclaimer-wrap{padding:0 12px;margin-top:10px}.disclaimer-box{font-size:12px}}
+
 /* TOPBAR */
 .topbar{background:#fff;border-bottom:1px solid var(--bd);padding:0 24px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;box-shadow:0 1px 4px rgba(0,0,0,.06)}
 .tb-brand{display:flex;align-items:center;gap:10px}
@@ -217,6 +223,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t1);min-h
     <span class="bname">PediDose<small> 1.0</small></span>
   </div>
   <span class="vtag">Pediatrik Doz Hesaplayıcı</span>
+</div>
+
+<div class="disclaimer-wrap">
+  <div class="disclaimer-box">
+    <strong>Uyarı ve Sorumluluk Reddi</strong>
+    PediDose 1.0, çocuk hastalarda ilaç doz hesaplamasına yardımcı olmak amacıyla geliştirilmiş bir klinik destek aracıdır. Yazılım hataları veya güncel bilimsel verilerdeki değişiklikler nedeniyle hatalı sonuçlar oluşabileceğinden, uygulama çıktıları güvenilir referans kaynaklar ile doğrulanmalıdır. Nihai tedavi ve reçete kararı ile buna ilişkin sorumluluk, ilgili sağlık profesyoneline aittir.
+  </div>
 </div>
 
 <div class="layout">
@@ -630,7 +643,7 @@ const DB = [
 
 // ── LAKTÜLOZ ─────────────────────────────────────────────
 {key:"laktuloz",label:"Laktüloz",sinif:"laksatif",yol:"PO",
- doseMin:null,doseMax:null,doseRec:null,fixedMg:670,fixedMgMax:2000,maxDozMg:40000,
+ doseMin:670,doseMax:670,doseRec:670,fixedMg:null,fixedMgMax:null,maxDozMg:40000,
  freq:1,freqPer:"günlük",totalDoz:null,olcek:15,suspMl:1,
  defDur:30,durLabel:"Etki başlayana kadar",bRule:"min_kutu",
  preps:[
@@ -641,11 +654,11 @@ const DB = [
   {brand:"DUPHALAC Şurup 667 mg/ml 300 ml",sMg:670,sMl:1,vol:300},
   {brand:"LAXAMOT Şurup 667 mg/ml 300 ml",sMg:670,sMl:1,vol:300},
   {brand:"ORALAC Şurup 670 mg/ml 300 ml",sMg:670,sMl:1,vol:300}],
- aciklama:"Başlangıç dozu: 670 mg/gün (1 ölçek). Gerekirse 2000 mg/güne kadar artırılabilir. Bireysel titrasyona göre belirlenir.",warning:null},
+ aciklama:"Doz: 670 mg/kg/doz (1 ml/kg/doz), 1×1/gün. Bireysel titrasyona göre düzenlenir.",warning:null},
 
 // ── METRONİDAZOL ─────────────────────────────────────────
 {key:"metro_ameb",label:"Metronidazol (amebiyaz)",sinif:"antibakteriyel",yol:"PO",
- doseMin:16.7,doseMax:16.7,doseRec:16.7,fixedMg:null,maxDozMg:750,
+ doseMin:12.5,doseMax:12.5,doseRec:12.5,fixedMg:null,maxDozMg:750,
  freq:3,freqPer:"günlük",totalDoz:null,olcek:5,suspMl:5,
  defDur:7,durLabel:"10 gün",bRule:"min_kutu",
  preps:[{brand:"FLAGYL Oral Süspansiyon 125 mg/5 ml 120 ml şişe",sMg:125,sMl:5,vol:120}],
@@ -653,7 +666,7 @@ const DB = [
 
 // ── NİTROFURANTOİN ───────────────────────────────────────
 {key:"nitro",label:"Nitrofurantoin",sinif:"antibakteriyel",yol:"PO",
- doseMin:5,doseMax:7,doseRec:5,fixedMg:null,maxDozMg:100,
+ doseMin:1.25,doseMax:1.25,doseRec:1.25,fixedMg:null,maxDozMg:100,
  freq:4,freqPer:"günlük",totalDoz:null,olcek:5,suspMl:5,
  defDur:7,durLabel:"7 gün",bRule:"min_kutu",
  preps:[{brand:"PİYELOSEPTYL Oral Süspansiyon 25 mg/5 ml 100 ml şişe",sMg:25,sMl:5,vol:100}],
@@ -877,23 +890,23 @@ const DB = [
 
 // ── TMP-SMX ──────────────────────────────────────────────
 {key:"tmp_sistit",label:"TMP-SMX — Sistit",sinif:"antibakteriyel",yol:"PO",
- doseMin:null,doseMax:null,doseRec:null,fixedMg:10,maxDozMg:160,
+ doseMin:4,doseMax:4,doseRec:4,fixedMg:null,maxDozMg:160,
  freq:2,freqPer:"günlük",totalDoz:null,olcek:5,suspMl:5,
  defDur:7,durLabel:"3 gün",bRule:"min_kutu",
  preps:[
   {brand:"BACTRİM Süspansiyon 200 mg + 40 mg/5 ml 100 ml",sMg:40,sMl:5,vol:100},
   {brand:"TRİMOKS Pediyatrik Süspansiyon 200 mg + 40 mg/5 ml 100 ml",sMg:40,sMl:5,vol:100}],
- aciklama:">2 ay üzeri kullanım önerisi. (TMP bileşeni bazında hesaplanır: 40 mg/5 ml = 8 mg/ml TMP)",
+ aciklama:">2 ay üzeri kullanım önerisi. TMP bileşeni bazında doz: 4 mg/kg/doz (40 mg/5 ml = 8 mg/ml TMP).",
  warning:">2 ay üzeri kullanım önerisi mevcuttur."},
 
 {key:"tmp_dyde",label:"TMP-SMX — DYDE",sinif:"antibakteriyel",yol:"PO",
- doseMin:null,doseMax:null,doseRec:null,fixedMg:10,maxDozMg:320,
+ doseMin:4,doseMax:4,doseRec:4,fixedMg:null,maxDozMg:320,
  freq:2,freqPer:"günlük",totalDoz:null,olcek:5,suspMl:5,
  defDur:7,durLabel:"7–10 gün",bRule:"min_kutu",
  preps:[
   {brand:"BACTRİM Süspansiyon 200 mg + 40 mg/5 ml 100 ml",sMg:40,sMl:5,vol:100},
   {brand:"TRİMOKS Pediyatrik Süspansiyon 200 mg + 40 mg/5 ml 100 ml",sMg:40,sMl:5,vol:100}],
- aciklama:">2 ay üzeri kullanım önerisi mevcuttur.",
+ aciklama:">2 ay üzeri kullanım önerisi mevcuttur. TMP bileşeni bazında doz: 4 mg/kg/doz.",
  warning:">2 ay üzeri kullanım önerisi mevcuttur."}
 ];
 
