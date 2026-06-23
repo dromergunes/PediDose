@@ -9,6 +9,12 @@ function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 
 gtag('config', 'G-M0CCGNEQBS');
+  function trackEvent(eventName, params = {}) {
+  gtag('event', eventName, params);
+}
+
+// uygulama açılışı
+trackEvent('uygulama_acildi');
 </script>
   
 <meta charset="UTF-8">
@@ -343,7 +349,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t1);min-h
       </div>
 
       <div class="ract">
-        <button class="bact pri" onclick="showRxModal()">📋 Reçete Görüntüle</button>
+        <button class="bact pri" onclick="trackRx();showRxModal()">📋 Reçete Görüntüle</button>
         <button class="bact" onclick="copyRx()">📄 Kopyala</button>
         <button class="bact" onclick="addFav()">⭐ Favorilere Ekle</button>
       </div>
@@ -947,6 +953,9 @@ function onDrug(){
   const wtInput=document.getElementById('wt');
   const wtCat=document.getElementById('wtcat');
   if(S.drug){
+  trackEvent('ilac_secildi',{
+  ilac:S.drug.label
+});  
     h.style.display='block';
     document.getElementById('hdur').textContent=S.drug.durLabel||'—';
     if(S.drug.isDefLH) selDur('LH');
@@ -1562,9 +1571,23 @@ function copyModalRx(){
 // ════════════════════════════════════════════════════════
 // INTERACTIONS
 // ════════════════════════════════════════════════════════
-function swV(v){S.view=v;document.getElementById('rb').style.display='none';renderRes();}
+function swV(v){
+
+  trackEvent('doz_gorunumu_degisti',{
+    tip:v
+  });
+
+  S.view=v;
+  document.getElementById('rb').style.display='none';
+  renderRes();
+
+}
+  
 
 function applyRnd(yes){
+  trackEvent('yuvarlama',{
+  tercih: yes ? 'evet' : 'hayir'
+});
   if(yes&&S.res){
     const{r,isBound}=rndOl05(S.res.recOl);
     S.rounded=true;S.rndOl=r;
@@ -1591,11 +1614,17 @@ function clrAll(){
 }
 
 function copyRx(){
+  trackEvent('recete_kopyalandi',{
+  ilac:S.drug?.label
+});
   if(!S.res||!S.drug){toast('⚠️ Önce hesaplama yapın');return;}
   copyModalRx();
 }
 
 function addFav(){
+  trackEvent('favorilere_eklendi',{
+  ilac:S.drug?.label
+});
   if(!S.drug) return;
   const favs=JSON.parse(localStorage.getItem('pedi_favs')||'[]');
   if(!favs.includes(S.drug.label)){favs.push(S.drug.label);localStorage.setItem('pedi_favs',JSON.stringify(favs));toast('⭐ Favorilere eklendi');}
@@ -1660,10 +1689,18 @@ function fmtO(v){
   return r%1===0?r.toString():r.toFixed(1);
 }
 function toast(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg;t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2500);
+    const t=document.getElementById('toast');
+    t.textContent=msg;
+    t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'),2500);
 }
+
+function trackRx(){
+  trackEvent('recete_goruntulendi',{
+    ilac:S.drug?.label
+  });
+}
+
 </script>
 </body>
 </html>
