@@ -10,10 +10,10 @@ gtag('js', new Date());
 
 gtag('config', 'G-M0CCGNEQBS');
   function trackEvent(eventName, params = {}) {
- if(typeof gtag==='function'){
-    gtag('event','doz_hesaplandi');
+    if (typeof gtag === 'function') {
+        gtag('event', eventName, params);
+    }
 }
-
 // uygulama açılışı
 trackEvent('uygulama_acildi');
 </script>
