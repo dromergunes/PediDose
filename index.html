@@ -4,17 +4,19 @@
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-M0CCGNEQBS"></script>
 <script>
+<script>
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 
 gtag('config', 'G-M0CCGNEQBS');
-  function trackEvent(eventName, params = {}) {
+
+function trackEvent(eventName, params = {}) {
     if (typeof gtag === 'function') {
         gtag('event', eventName, params);
     }
-    
 }
+
 // uygulama açılışı
 trackEvent('uygulama_acildi');
 </script>
