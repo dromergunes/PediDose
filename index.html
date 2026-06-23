@@ -10,7 +10,8 @@ gtag('js', new Date());
 
 gtag('config', 'G-M0CCGNEQBS');
   function trackEvent(eventName, params = {}) {
-  gtag('event', eventName, params);
+ if(typeof gtag==='function'){
+    gtag('event','doz_hesaplandi');
 }
 
 // uygulama açılışı
@@ -1207,6 +1208,9 @@ function calc(){
     const autoPrep=autoSelPrep(d,totalMl,az.d1Ml,S.wt||0);
     S.selPrep=null;
     S.res={isAzitro:true,az,totalMl,prep:autoPrep,autoPrep:autoPrep,durStr:S.isLH?'LH':S.is2hafta?'2 haftada bir':'5 gün'};
+   if(typeof gtag==='function'){
+    gtag('event','doz_hesaplandi');
+}
     renderRes();return;
   }
 
